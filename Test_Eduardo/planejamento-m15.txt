@@ -1,0 +1,98 @@
+PLANEJAMENTO — M15 contest_end_effective
+========================================
+Arquivo : cdmoj/server/api/v1/lib/contest-gate.sh (achar pelo NOME; hoje na linha 35)
+Base    : master ec13d5cc — bash 5.3.20, jq 1.8.2 — 2026-10-27
+Branch  : test/eduardo-m15
+Status  : planejamento (nenhum teste escrito ainda; M14 vem primeiro)
+
+1. CONTRATO (oráculo = comentário das linhas 32–34)
+-------------------------------------------------
+contest_end_effective <contest> <login> -> fim EFETIVO (epoch; 0 = sem limite):
+  - CONTEST_END do conf, PRORROGADO pela regra do time-overrides.json que casar;
+  - o override só ESTENDE — nunca encurta;
+  - e só vale quando há um fim definido no conf (CONTEST_END > 0).
+Reforço: contest_end_all (l.44–49) "Espelha contest_end_effective"; o porteiro
+(end_effective, ~l.272 de moj-porteiro.py) é o espelho em Python.
+
+Código:
+  local CONTEST_START=0 CONTEST_END=0 oend
+  source "$CONTESTSDIR/$1/conf" 2>/dev/null
+  [[ "$CONTEST_END" =~ ^[0-9]+$ ]] || CONTEST_END=0                              # D1
+  oend="$(time_override_end "$1" "${2:-}")"                                     # M14
+  [[ "$oend" =~ ^[0-9]+$ ]] && (( CONTEST_END > 0 && oend > CONTEST_END )) && CONTEST_END=$oend   # D2
+  printf '%s' "$CONTEST_END"
+
+2. O QUE JÁ SABEMOS
+-------------------
+- Chamadores: handlers/contest/offline-submit.sh:40, handlers/contest/basic.sh:26
+  (countdown), contest_phase (contest-gate.sh ~l.141, que é o M16 — não é meu).
+- CONTEST_END no conf é gravado com printf %q de epoch (contest-migrate.sh:181, criação);
+  "09", octal, overflow int64 só por conf editado à mão.
+- Porteiro: end = conf_int(CONTEST_END); o = override_end() -> int(e) (aceita float);
+  estende se o is not None and end > 0 and o > end.
+- Writer do time-overrides.json faz floor e exige end>0 => float/negativo/exponencial
+  só por arquivo EDITADO FORA DA API.
+- Saídas do M14 que chegam aqui (jq 1.8.2): "1700000100.5", "-1", "1.7000001E+9"
+  (exponencial: literal preservado), "" (nada casa).
+- Observado no bash 5.3.20 (função isolada, a confirmar no teste):
+    CONTEST_END=09   oend=1700000100 -> 1700000100 (sem erro de octal)
+    CONTEST_END=0100 oend=99         -> 0100 (comparou como decimal 100)
+    oend=99999999999999999999 (20 dígitos) -> aviso "number truncated", não estende
+- Papel/SESSION_LOGIN não é usado pelo M15 (só repassa o login ao M14).
+
+3. CAIXA-PRETA — partições
+--------------------------
+F1 CONTEST_END (conf): V1 epoch>0 | V2 0 (sem fim) | I1 ausente | I2 não-numérico ("abc", "-5", "")
+                       | I3 conf ausente
+F2 override (M14)    : V3 vazio (nenhuma regra) | V4 inteiro > END | V5 inteiro == END | V6 inteiro < END
+                       | I4 float | I5 negativo | I6 exponencial
+F3 login             : V7 presente | I7 ausente (1 argumento; set -u)
+Limites (há ordem entre oend e END):
+  oend = END-1 (não estende) | oend = END (não estende) | oend = END+1 (estende)
+  END = 0 x END = 1 (com oend grande)
+
+Casos:
+  E01 END=1700000000, sem override              -> 1700000000      V1 V3
+  E02 END=1700000000, oend=1700000100           -> 1700000100      V4 (estende)
+  E03 END=1700000000, oend=1700000000 (==)      -> 1700000000      V5 limite
+  E04 END=1700000000, oend=1700000001 (END+1)   -> 1700000001      limite
+  E05 END=1700000000, oend=1699999999 (END-1)   -> 1700000000      V6 limite (nunca encurta)
+  E06 END=0, oend=1700000100                    -> 0               V2 (sem fim não ganha fim)
+  E07 END=1, oend=1700000100                    -> 1700000100      limite END 0 x 1
+  E08 conf sem CONTEST_END                      -> 0               I1
+  E09 CONTEST_END=abc                           -> 0               I2
+  E10 conf ausente                              -> 0               I3
+  E11 só 1 argumento                            -> END, sem erro   I7
+  E12 sedes desligado + override maior          -> END             (via M14)
+  E13 1ª regra end -1, 2ª maior que END         -> END             I5 (bash = porteiro; NÃO é defeito)
+
+XFAIL candidatos (todos: "alcançável só via time-overrides.json editado fora da API"):
+  X1 end exponencial 1.7000001e9 (inteiro!)     esperado 1700000100 (contrato + porteiro);
+     obtido 1700000000 — jq ecoa "1.7000001E+9", regex ^[0-9]+$ rejeita. Depende da versão do jq.
+  X2 end float 1700000100.5 (1ª regra) + 2ª válida maior
+     esperado estender (porteiro: int -> 1700000100); obtido END. Mesma causa do X1
+     (ex-H1/H3 do draft, unificados).
+Notas de 1 linha (não XFAIL): octal "09"/"0100" e overflow de 20 dígitos — conf é escrito
+com printf %q de epoch, inalcançável pela API; registrar o observado.
+
+4. CAIXA-BRANCA
+---------------
+D1 [[ CONTEST_END =~ ^[0-9]+$ ]]          T: E01 | F: E09
+D2 R && (A && B) && atribui
+   R = [[ oend =~ ^[0-9]+$ ]], A = CONTEST_END > 0, B = oend > CONTEST_END
+   MC/DC: R  E02(TTT) x E01/X1(F,·,·)   — R=F por oend vazio (E01) e por formato (X1)
+          A  E02(TTT) x E06(TFT)
+          B  E02(TTT) x E03(TTF) / E05
+   Curto-circuito: R=F não avalia A,B; dentro do (( )) A=F não avalia B (mascaramento).
+   Observação: B só é observável com A=T; A=F com B=T é o par E06.
+Sem decisões dentro de jq no M15 => xtrace enxerga D1 e D2 inteiros (bom p/ imagens MC/DC).
+source do conf com 2>/dev/null: conf ausente cai nos locals (E10).
+
+5. FIXTURE / IMPLEMENTAÇÃO
+--------------------------
+- Mesmo script do M14: Test_Eduardo/contest-end-override.sh (seção M15), ou script próprio
+  se o M15 ficar em branch separada (decidir ao implementar).
+- conf da fixture: CONTEST_END=... e CONTEST_MODULES=sedes; time-overrides.json por caso.
+- Não stubar time_override_end: M15 testado integrado com o M14 real (o defeito X1/X2 é da
+  composição). Para isolar D2 dá p/ sobrescrever time_override_end num subshell — avaliar.
+- Fora do escopo: contest_phase (M16), contest_end_all, papel.
