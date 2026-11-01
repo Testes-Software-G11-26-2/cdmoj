@@ -1,0 +1,5 @@
++ run:33: time_override_end c01 ''
++ time_override_end:23: local f=/tmp/tmp.87chVJdUVv/contests/c01/time-overrides.json
++ time_override_end:24: [[ -s /tmp/tmp.87chVJdUVv/contests/c01/time-overrides.json ]]
++ time_override_end:24: [[ -n '' ]]
++ time_override_end:24: return 0

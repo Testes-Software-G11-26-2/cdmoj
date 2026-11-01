@@ -1,0 +1,12 @@
+{
+  "files": [
+    {"file": "/home/eduardo/testes-g11/cdmoj/server/api/v1/lib/contest-gate.sh", "percent_covered": "7.81", "covered_lines": "5", "total_lines": "64"}
+  ],
+  "percent_covered": "7.81",
+  "covered_lines": 5,
+  "total_lines": 64,
+  "percent_low": 25,
+  "percent_high": 75,
+  "command": "time-override-end.sh",
+  "date": "2026-11-01 11:26:39"
+}

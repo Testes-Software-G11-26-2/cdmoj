@@ -1,0 +1,4 @@
+# porteiro = espelho; Python 3.14.8
+M14 X1 objeto          porteiro.override_end = None
+M14 X2 elem. string    porteiro.override_end = 1700000100
+M14 C17 regex 5        porteiro levanta TypeError: first argument must be string or compiled pattern  -> except Exception -> fallback p/ o bash
