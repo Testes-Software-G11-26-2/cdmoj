@@ -1,0 +1,119 @@
+PLANEJAMENTO — M14 time_override_end
+=====================================
+Arquivo : cdmoj/server/api/v1/lib/contest-gate.sh (achar pelo NOME; hoje na linha 22)
+Base    : master ec13d5cc — bash 5.3.20, jq 1.8.2 — 2026-10-27
+Branch  : test/eduardo-m14
+Status  : planejamento (nenhum teste escrito ainda)
+
+1. CONTRATO (oráculo = comentário das linhas 13–20)
+-------------------------------------------------
+time_override_end <contest> <login>
+  - ecoa o `end` (epoch) da 1ª regra de contests/<c>/time-overrides.json cujo regex
+    casa com o login; vazio se nenhuma.
+  - Formato do arquivo: [{regex, end, reason?}, …] — 1ª que casa vence.
+  - try/catch protege de regex inválido (regra pulada).
+  - Só vale com o módulo `sedes` ligado (decisão do Ribas, 03/10/2026); o teste do
+    módulo vem DEPOIS do teste do arquivo.
+
+Código:
+  local f="$CONTESTSDIR/$1/time-overrides.json"
+  [[ -s "$f" && -n "${2:-}" ]] || return 0                         # D1
+  _tov_on "$1" || return 0                                          # D2/D3
+  jq -r --arg l "$2" 'first(.[]? | (.regex // "") as $rr | (.end) as $e
+        | select($rr != "" and ($e|type=="number") and (try ($l|test($rr)) catch false))
+        | $e) // empty' "$f" 2>/dev/null                            # D4–D7
+  _tov_on(){ declare -F mod_on >/dev/null || source "${_LIBDIR:-…}/modules.sh"; mod_on "$1" sedes; }
+
+2. O QUE JÁ SABEMOS (verificado no código e com jq real)
+--------------------------------------------------------
+- Writer (handlers/contest/admin/time-overrides.sh) sanitiza: regex string não-vazia,
+  <=200 chars e compilável; end = floor(numero) e exige end>0; máx 50 regras.
+  => float, negativo, exponencial, objeto no lugar de array, regex não-string só
+     chegam por time-overrides.json EDITADO FORA DA API (à mão/restaurado/migrado).
+- Porteiro (server/porteiro/moj-porteiro.py, override_end ~l.253) é o "espelho" do M14:
+  exige lista, pula não-dict, aceita int/float (não bool), retorna int(e).
+  Exceção não prevista no porteiro => except Exception (~l.1017) => fallback p/ bash.
+- Papel/SESSION_LOGIN NÃO é usado pelo M14. Testes de troca de papel (admin↔aluno,
+  sufixos forjados) passaram, mas são contexto do relatório, não caso do M14.
+- Observações com jq 1.8.2 (filtro do M14 isolado):
+    1ª end 1700000100.5, 2ª válida     -> 1700000100.5 (float é type number; mascara a 2ª)
+    1ª end -1, 2ª válida               -> -1
+    end 1.7000001e9                    -> 1.7000001E+9 (literal preservado)
+    {"a":{regex,end}} (objeto)         -> ecoa o end (.[]? itera valores do objeto)
+    1ª regex 5, 2ª válida              -> ecoa a 2ª (try captura)
+    end true                           -> vazio
+    regex "(" e 2ª válida              -> ecoa a 2ª
+    "sede1" x login "xsede1y"          -> casa (busca NÃO ancorada)
+    JSON inválido                      -> vazio, rc=5 (contrato não fala de rc)
+- Float/negativo/exponencial NÃO violam o contrato do M14 (ele só ecoa o número);
+  a quebra aparece no M15 => esses casos são testados no planejamento-m15.txt.
+
+3. CAIXA-PRETA — partições (V válida, I inválida)
+-------------------------------------------------
+E1 arquivo : V1 array válido | V2 [] | I1 ausente | I2 0 bytes | I3 JSON inválido | I4 não-array (objeto)
+E2 login   : V3 não vazio | I5 "" | I6 ausente (1 argumento só)
+E3 sedes   : V4 ligado ("sedes", "coortes,sedes") | I7 desligado | I8 sem CONTEST_MODULES | I9 "sedesX"
+E4 regex   : V5 casa | V6 não casa | I10 "" | I11 ausente/null | I12 inválida "(" | I13 não-string (5)
+E5 end     : V7 inteiro>0 | V8 0 | I14 string | I15 bool | I16 null/ausente
+E6 posição : V9 1ª casa | V10 só a última | V11 várias casam (vence a 1ª) | V12 nenhuma
+Limites    : 1 regra x N; casar na 1ª x última; end 0 x 1;
+             fronteira do login com "^t1\." : t1.a casa | t1a não | xt1.a não.
+
+Casos (uma inválida por vez):
+  C01 1 regra casa, end 1700000100        -> 1700000100     V1 V3 V4 V5 V7 V9
+  C02 arquivo ausente                      -> vazio          I1
+  C03 arquivo 0 bytes                      -> vazio          I2
+  C04 JSON inválido                        -> vazio          I3
+  C05 []                                   -> vazio          V2
+  C06 objeto no lugar de array             -> vazio          I4  (XFAIL? decidir)
+  C07 login ""                             -> vazio          I5
+  C08 só 1 argumento (set -u)              -> vazio, sem erro I6
+  C09 sedes desligado                      -> vazio          I7
+  C10 conf sem CONTEST_MODULES             -> vazio          I8
+  C11 CONTEST_MODULES=sedesX               -> vazio          I9
+  C12 CONTEST_MODULES=coortes,sedes        -> ecoa           V4
+  C13 regex não casa                       -> vazio          V6 V12
+  C14 1ª regex "", 2ª casa                 -> 2ª             I10
+  C15 1ª sem regex, 2ª casa                -> 2ª             I11
+  C16 1ª "(", 2ª casa                      -> 2ª             I12
+  C17 1ª regex 5, 2ª casa                  -> 2ª             I13
+  C18 1ª end "123", 2ª casa                -> 2ª             I14
+  C19 1ª end true, 2ª casa                 -> 2ª             I15
+  C20 1ª end null, 2ª casa                 -> 2ª             I16
+  C21 end 0                                -> 0              V8 (limite)
+  C22 end 1                                -> 1              limite
+  C23 duas casam (100, 200)                -> 100            V11
+  C24 só a última de 3 casa                -> end dela       V10
+  C25-27 "^t1\." x t1.a / t1a / xt1.a      -> ecoa/vazio/vazio limite do casamento
+  C28 "sede1" x xsede1y                    -> ecoa           busca não ancorada
+
+4. CAIXA-BRANCA
+---------------
+D1 [[ -s f && -n login ]]  A=-s, B=-n   MC/DC: A C01(TT) x C02(FT); B C01(TT) x C07(TF)
+                                         curto-circuito: A=F mascara B.
+D2 declare -F mod_on || source          M=T (modules.sh já carregado) x M=F (força source via _LIBDIR)
+D3 mod_on … sedes                       C01 x C09
+D4 select(c1 and c2 and c3) (jq)        c1 $rr!="", c2 type=="number", c3 try test
+                                         TTT C01 x FTT C14 | TFT C18 | TTF C13; c3 catch: C16
+D5 .regex // ""                         C15
+D6 first(...)                           0 elem C05 | 1ª C23 | última C24
+D7 // empty                             C13
+Lacuna: xtrace só enxerga D1–D3; D4–D7 (dentro do jq) cobertas por entrada/saída.
+
+5. HIPÓTESES / DECISÕES PENDENTES
+---------------------------------
+- H-OBJ (C06): arquivo objeto -> bash ecoa o end, porteiro devolve None (exige lista).
+  Viola o formato do contrato e a paridade bash/porteiro. XFAIL ou só nota? (decidir)
+  Alcançável só via arquivo editado fora da API.
+- Regex não-string (C17): porteiro levanta TypeError, mas cai no fallback bash =>
+  mesmo resultado final. NÃO é defeito; caso que passa.
+- rc=5 em JSON inválido: só nota (contrato silencioso, chamadores usam $(…)).
+
+6. FIXTURE / IMPLEMENTAÇÃO
+--------------------------
+- Script: Test_Eduardo/contest-end-override.sh (M14 + M15), estilo upstream
+  (set -u, ck, contadores, "RESULT: N passed, M failed, K xfail", exit 1 se falha não-XFAIL).
+- CONTESTSDIR em mktemp -d com trap; MOJ_CONF apontando p/ arquivo inexistente.
+- NÃO stubar mod_on: usar modules.sh real com CONTEST_MODULES no conf da fixture
+  (conferir dependências: conf_value_to vem de common.sh). is_* não são usados.
+- Fora do escopo: troca de papel, limites de contest_phase (é o M16), gate-guard.sh.
