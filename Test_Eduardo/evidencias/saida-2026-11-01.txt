@@ -1,0 +1,25 @@
+== caixa-preta: CONTEST_END do conf (F1) ==
+  ok: E01 — obtido: rc0 "1700000000"
+  ok: E06 — obtido: rc0 "0"
+  ok: E08 — obtido: rc0 "0"
+  ok: E09 — obtido: rc0 "0"
+  ok: E10 — obtido: rc0 "0"
+== caixa-preta: override (F2) e limites oend × END ==
+  ok: E02 — obtido: rc0 "1700000100"
+  ok: E03 — obtido: rc0 "1700000000"
+  ok: E04 — obtido: rc0 "1700000001"
+  ok: E05 — obtido: rc0 "1700000000"
+  ok: E07 — obtido: rc0 "1700000100"
+== caixa-preta: login (F3) e módulo sedes ==
+  ok: E11 — obtido: rc0 "1700000000"
+  ok: E12 — obtido: rc0 "1700000000"
+== 1ª regra que casa vence, mesmo com end negativo (bash = porteiro) ==
+  ok: E13 — obtido: rc0 "1700000000"
+== hipóteses de defeito (XFAIL): override numérico válido que não estende ==
+  XFAIL: X1 — esperado: "1700000100" — obtido: rc0 "1700000000"
+  XFAIL: X2 — esperado: "1700000100" — obtido: rc0 "1700000000"
+== hipóteses de defeito (XFAIL): CONTEST_END com zero à esquerda — o (( )) lê como octal ==
+  XFAIL: X3 — esperado: "100" — obtido: rc0 "99"
+  XFAIL: X4 — esperado: "1700000100" — obtido: rc0 "09" stderr="/home/eduardo/testes-g11/cdmoj-m15/Test_Eduardo/../server/api/v1/lib/contest-gate.sh: line 40: ((: 09: value too great for base (error token is "09")"
+
+RESULT: 13 passed, 0 failed, 4 xfail

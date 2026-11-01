@@ -1,0 +1,6 @@
+# porteiro = espelho; Python 3.14.8
+M15 E13 end -1         porteiro.end_effective = 1700000000
+M15 X1 1.7000001e9     porteiro.end_effective = 1700000100
+M15 X2 float           porteiro.end_effective = 1700000100
+M15 X3 END=0100        porteiro.end_effective = 100
+M15 X4 END=09          porteiro.end_effective = 1700000100

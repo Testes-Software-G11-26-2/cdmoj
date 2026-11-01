@@ -1,0 +1,12 @@
+{
+  "files": [
+    {"file": "/home/eduardo/testes-g11/cdmoj-m15/server/api/v1/lib/contest-gate.sh", "percent_covered": "17.19", "covered_lines": "11", "total_lines": "64"}
+  ],
+  "percent_covered": "17.19",
+  "covered_lines": 11,
+  "total_lines": 64,
+  "percent_low": 25,
+  "percent_high": 75,
+  "command": "contest-end-effective.sh",
+  "date": "2026-11-01 11:26:40"
+}
