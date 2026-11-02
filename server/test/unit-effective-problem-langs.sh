@@ -2,7 +2,7 @@
 # M20: funcao real, jq real, filesystem temporario e dublê do carregador de conf.
 set -uo pipefail
 export LC_ALL=C
-ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
 LIB="$ROOT/server/api/v1/lib/langs.sh"
 suite=todos trace_dir=''
 while (( $# )); do

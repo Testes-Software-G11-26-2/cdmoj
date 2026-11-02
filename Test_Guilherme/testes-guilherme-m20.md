@@ -35,34 +35,36 @@ Os casos de precedencia, sozinhos, nao demonstram que o cache e reutilizado ou q
 
 ## Testes implementados e resultados
 
-Script: Test_Guilherme/effective-problem-langs.sh. 24 casos no total, incluindo TDD01. A suite regressao exclui o requisito novo; tdd executa apenas TDD01; todos executa ambos.
+Script: server/test/unit-effective-problem-langs.sh. 24 casos no total, incluindo TDD01. A suite regressao exclui o requisito novo; tdd executa apenas TDD01; todos executa ambos.
 
-| ID | Tecnica / finalidade | Resultado apos Refactor |
-|---|---|---|
-| C01 | PE:problema-vence | PASS |
-| C02 | PE:contest-vence | PASS |
-| C03 | PE:pacote-publico | PASS |
-| C04 | PE:pacote-privado | PASS |
-| C05 | PE:fallback | PASS |
-| C06 | PE:override-vazio-soberano | PASS |
-| C07 | PE:override-null | PASS |
-| C08 | PE:pid-ausente | PASS |
-| C09 | PE:override-malformado | PASS |
-| C10 | AVL:arquivo-zero-bytes | PASS |
-| C11 | CB:conf-so-espacos | PASS |
-| C12 | PE:conf-multiplas | PASS |
-| C13 | PE:publico-vazio-vence-privado | PASS |
-| C14 | PE:pacote-null | PASS |
-| C15 | caracterizacao:publico-invalido-nao-tenta-privado | PASS |
-| C16 | PE:privado-malformado | PASS |
-| C17 | PE:aliases-preservados | PASS |
-| C18 | PE:seleciona-chave-exata | PASS |
-| C19 | PE:falha-do-carregador | PASS |
-| C20 | PE:ordem-e-duplicatas | PASS |
-| C21 | CB:cache-mesmo-contest | PASS |
-| C22 | CB:cache-outro-pid | PASS |
-| C23 | CB:cache-outro-contest | PASS |
-| TDD01 | TDD:override-ausente-silencioso | PASS |
+| ID | Tecnica / finalidade | Entrada / cenario | Esperado | Obtido apos Refactor |
+|---|---|---|---|---|
+| C01 | PE:problema-vence | override=`{"org#p":["cpp"]}`; conf=`py`; publico=`{"languages":["java"]}`; privado=`{"languages":["c"]}` | `["cpp"]`; rc=0 | Igual ao esperado; PASS |
+| C02 | PE:contest-vence | override=`{}`; conf=`py`; publico=`{"languages":["java"]}`; privado=`@missing` | `["py"]`; rc=0 | Igual ao esperado; PASS |
+| C03 | PE:pacote-publico | override=`{}`; conf=`""`; publico=`{"languages":["java"]}`; privado=`@missing` | `["java"]`; rc=0 | Igual ao esperado; PASS |
+| C04 | PE:pacote-privado | override=`{}`; conf=`""`; publico=`@missing`; privado=`{"languages":["c"]}` | `["c"]`; rc=0 | Igual ao esperado; PASS |
+| C05 | PE:fallback | override=`{}`; conf=`""`; publico=`@missing`; privado=`@missing` | `[]`; rc=0 | Igual ao esperado; PASS |
+| C06 | PE:override-vazio-soberano | override=`{"org#p":[]}`; conf=`py`; publico=`{"languages":["java"]}`; privado=`@missing` | `[]`; rc=0 | Igual ao esperado; PASS |
+| C07 | PE:override-null | override=`{"org#p":null}`; conf=`py`; publico=`@missing`; privado=`@missing` | `["py"]`; rc=0 | Igual ao esperado; PASS |
+| C08 | PE:pid-ausente | override=`{"outro":["cpp"]}`; conf=`py`; publico=`@missing`; privado=`@missing` | `["py"]`; rc=0 | Igual ao esperado; PASS |
+| C09 | PE:override-malformado | override=`{`; conf=`py`; publico=`@missing`; privado=`@missing` | `["py"]`; rc=0 | Igual ao esperado; PASS |
+| C10 | AVL:arquivo-zero-bytes | override=`""`; conf=`py`; publico=`@missing`; privado=`@missing` | `["py"]`; rc=0 | Igual ao esperado; PASS |
+| C11 | CB:conf-so-espacos | override=`{}`; conf=`   `; publico=`{"languages":["java"]}`; privado=`@missing` | `["java"]`; rc=0 | Igual ao esperado; PASS |
+| C12 | PE:conf-multiplas | override=`{}`; conf=`py cpp`; publico=`@missing`; privado=`@missing` | `["py","cpp"]`; rc=0 | Igual ao esperado; PASS |
+| C13 | PE:publico-vazio-vence-privado | override=`{}`; conf=`""`; publico=`{"languages":[]}`; privado=`{"languages":["cpp"]}` | `[]`; rc=0 | Igual ao esperado; PASS |
+| C14 | PE:pacote-null | override=`{}`; conf=`""`; publico=`{"languages":null}`; privado=`@missing` | `[]`; rc=0 | Igual ao esperado; PASS |
+| C15 | caracterizacao:publico-invalido-nao-tenta-privado | override=`{}`; conf=`""`; publico=`{`; privado=`{"languages":["cpp"]}` | `[]`; rc=0 | Igual ao esperado; PASS |
+| C16 | PE:privado-malformado | override=`{}`; conf=`""`; publico=`@missing`; privado=`{` | `[]`; rc=0 | Igual ao esperado; PASS |
+| C17 | PE:aliases-preservados | override=`{"org#p":["C++","PY3"]}`; conf=`""`; publico=`@missing`; privado=`@missing` | `["C++","PY3"]`; rc=0 | Igual ao esperado; PASS |
+| C18 | PE:seleciona-chave-exata | override=`{"org#px":["c"],"org#p":["py"]}`; conf=`""`; publico=`@missing`; privado=`@missing` | `["py"]`; rc=0 | Igual ao esperado; PASS |
+| C19 | PE:falha-do-carregador | override=`{}`; conf=`@fail`; publico=`{"languages":["java"]}`; privado=`@missing` | `["java"]`; rc=0 | Igual ao esperado; PASS |
+| C20 | PE:ordem-e-duplicatas | override=`{}`; conf=`""`; publico=`{"languages":["py","cpp","py"]}`; privado=`@missing` | `["py","cpp","py"]`; rc=0 | Igual ao esperado; PASS |
+| C21 | CB:cache-mesmo-contest | override=`{"org#p":["cpp"]}`; conf=`""`; publico=`@missing`; privado=`@missing`; altera override para rs e conf para java, repete c/org#p | `["cpp"]`; rc=0 nas duas chamadas; 1 carga | Igual ao esperado; PASS |
+| C22 | CB:cache-outro-pid | override=`{"org#p":["cpp"],"org#q":["c"]}`; conf=`""`; publico=`@missing`; privado=`@missing`; consulta c/org#q na segunda chamada | `["cpp"]` e `["c"]`; rc=0; 1 carga | Igual ao esperado; PASS |
+| C23 | CB:cache-outro-contest | override=`{"org#p":["cpp"]}`; conf=`""`; publico=`@missing`; privado=`@missing`; consulta c2/org#p com override py | `["cpp"]` e `["py"]`; rc=0; 2 cargas | Igual ao esperado; PASS |
+| TDD01 | TDD:override-ausente-silencioso | override=`@missing`; conf=`py`; publico=`@missing`; privado=`@missing` | `["py"]`; rc=0 | Igual ao esperado; PASS |
+
+Entradas e esperados transcritos do script. `@missing` indica arquivo ausente; `@fail`, falha controlada do carregador; `conf`, o retorno controlado de LANGUAGES. A chamada inicial usa contest c e problema org#p. A coluna obtido resume as assertions aprovadas no [log existente apos Refactor](evidencias/tdd/refactor.txt), incluindo stderr vazio e isolamento das globais; nao representa uma nova execucao.
 
 Os resultados foram executados pelo integrante no PowerShell/Git Bash e conferidos nos arquivos locais. O log foi normalizado para UTF-8/LF sem alterar seu conteudo.
 
@@ -105,8 +107,8 @@ O ciclo Red -> Green -> Refactor foi executado e registrado. O requisito novo e 
 ## Executar
 
 ```bash
-bash Test_Guilherme/effective-problem-langs.sh --suite todos
-bash Test_Guilherme/effective-problem-langs.sh --suite todos --trace Test_Guilherme/evidencias/execucao/traces
+bash server/test/unit-effective-problem-langs.sh --suite todos
+bash server/test/unit-effective-problem-langs.sh --suite todos --trace Test_Guilherme/evidencias/execucao/traces
 ```
 
 ## Uso de Inteligência Artificial
