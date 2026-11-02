@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """oraculo-porteiro.py — executa o ESPELHO em Python do M14 (server/porteiro/moj-porteiro.py) sobre as mesmas
-entradas dos casos XFAIL do script bash. É o oráculo de paridade bash × porteiro citado no README. Offline: importa o
+entradas dos casos XFAIL do script bash. É o oráculo de paridade bash × porteiro citado no relatório (testes-eduardo-m14.md). Offline: importa o
 módulo (não sobe o servidor FastCGI) e usa um CONTESTSDIR temporário, apagado no fim.
 Uso: python3 -I Test_Eduardo/oraculo-porteiro.py"""
 import importlib.util, os, sys, tempfile
