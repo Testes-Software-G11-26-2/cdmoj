@@ -4,7 +4,7 @@ Guilherme Negreiros Pereira · Grupo 11.
 
 ## Estado
 
-Red executado e confirmado: TDD01 falhou pelo motivo esperado, com exit 1 visivel na captura. Green confirmado com 24 aprovados e zero falhas; Refactor ainda nao confirmado. As evidencias estao em evidencias/tdd/red.txt e evidencias/img/m20-red.png.
+Red executado e confirmado: TDD01 falhou pelo motivo esperado, com exit 1 visivel na captura. Green confirmado com 24 aprovados e zero falhas; Refactor confirmado com 24 aprovados e zero falhas. O ciclo Red -> Green -> Refactor esta completo. As evidencias estao em evidencias/tdd/red.txt e evidencias/img/m20-red.png.
 
 Suite planejada: 23 casos do contrato existente + TDD01 = 24 casos.
 

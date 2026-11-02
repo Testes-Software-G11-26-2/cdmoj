@@ -1,5 +1,7 @@
 # Planejamento M20
 
+Estado final: Red confirmado e Green/Refactor aprovados com 24 casos, conforme evidencias/tdd/README.md. As etapas planejadas abaixo foram executadas nesta sequencia.
+
 ## Objetivo e contrato
 
 Unidade: effective_problem_langs em server/api/v1/lib/langs.sh. Base: 2c46d4b0.
