@@ -1,0 +1,8 @@
++bash-c:11:main: _lang_canon C+
++/c/Users/negre/repos/moj/cdmoj-guilherme-m19/server/api/v1/lib/langs.sh:13:_lang_canon: ((  1 > 0  ))
++/c/Users/negre/repos/moj/cdmoj-guilherme-m19/server/api/v1/lib/langs.sh:13:_lang_canon: local t
+++/c/Users/negre/repos/moj/cdmoj-guilherme-m19/server/api/v1/lib/langs.sh:13:_lang_canon: printf %s C+
+++/c/Users/negre/repos/moj/cdmoj-guilherme-m19/server/api/v1/lib/langs.sh:13:_lang_canon: tr '[:upper:]' '[:lower:]'
++/c/Users/negre/repos/moj/cdmoj-guilherme-m19/server/api/v1/lib/langs.sh:13:_lang_canon: t=c+
++/c/Users/negre/repos/moj/cdmoj-guilherme-m19/server/api/v1/lib/langs.sh:14:_lang_canon: case "$t" in
++/c/Users/negre/repos/moj/cdmoj-guilherme-m19/server/api/v1/lib/langs.sh:18:_lang_canon: printf %s c+
