@@ -1,0 +1,7 @@
+=== Testando M16: contest_phase ===
+✅ PASSED: CT01_M16 (now < start)
+✅ PASSED: CT02_M16 (now == start)
+✅ PASSED: CT03_M16 (now < end)
+✅ PASSED: CT04_M16 (now == end)
+✅ PASSED: CT05_M16 (Sem prazo de fim)
+=== Fim dos Testes M16 ===

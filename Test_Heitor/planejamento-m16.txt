@@ -1,0 +1,49 @@
+==============================================================================
+PLANEJAMENTO DE TESTES - MÉTODO M16 (contest_phase)
+Responsável: Heitor
+Repositório: cdmoj (Grupo 11 - Testes de Software 2026.2)
+==============================================================================
+
+1. DESCRIÇÃO DO MÉTODO
+----------------------
+O método `contest_phase` é responsável por determinar em qual fase temporal
+o contest se encontra com base no timestamp atual ($now), no timestamp de
+início ($start) e no timestamp de término ($end).
+
+Valores retornados:
+- "before"  : antes do início do contest
+- "running" : contest em andamento
+- "ended"   : contest encerrado
+
+2. VARIÁVEIS DE ENTRADA E DOMÍNIO
+---------------------------------
+- $start: inteiro positivo representando timestamp de início (ex: 100)
+- $end  : inteiro positivo ou zero representando timestamp de término
+          (se end == 0, o contest não possui prazo de término determinado)
+- $now  : inteiro positivo representando timestamp atual da consulta
+
+3. CRITÉRIOS DE TESTE APLICADOS
+-------------------------------
+3.1. Particionamento em Classes de Equivalência (PCE):
+  [CE1] now < start           -> Retorna "before"
+  [CE2] start <= now < end    -> Retorna "running"
+  [CE3] now >= end (end > 0)  -> Retorna "ended"
+  [CE4] end == 0 e now >= start -> Retorna "running" (contest sem prazo)
+
+3.2. Análise de Valor Limite (AVL):
+  Considerando start=100 e end=200:
+  - Limite inferior de início: now=99 (off-point inferior: before)
+  - Limite de início exato:    now=100 (on-point: running)
+  - Limite superior de prova:  now=199 (off-point interior: running)
+  - Limite de encerramento:    now=200 (on-point término: ended)
+  - Domínio especial (end=0):  now=250 (running sem expiração)
+
+4. MATRIZ DE CASOS DE TESTE (CT)
+--------------------------------
+ID       | Condição de Teste            | now | start | end | Esperado | Status
+---------+------------------------------+-----+-------+-----+----------+-------
+CT01_M16 | now < start                  | 99  | 100   | 200 | before   | PASSED
+CT02_M16 | now == start                 | 100 | 100   | 200 | running  | PASSED
+CT03_M16 | now < end (instante final)   | 199 | 100   | 200 | running  | PASSED
+CT04_M16 | now == end                   | 200 | 100   | 200 | ended    | PASSED
+CT05_M16 | Sem prazo de fim (end == 0)  | 250 | 100   | 0   | running  | PASSED
