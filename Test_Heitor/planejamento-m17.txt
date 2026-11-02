@@ -1,0 +1,37 @@
+==============================================================================
+PLANEJAMENTO DE TESTES - MÉTODO M17 (can_see_problems)
+Responsável: Heitor
+Repositório: cdmoj (Grupo 11 - Testes de Software 2026.2)
+==============================================================================
+
+1. DESCRIÇÃO DO MÉTODO
+----------------------
+O método `can_see_problems` controla a regra de acesso e visibilidade
+dos enunciados dos problemas de um contest. O acesso depende do papel do
+usuário e da fase em que o contest se encontra.
+
+Código de Retorno (exit status):
+- 0 (sucesso) : o usuário tem permissão para visualizar os problemas
+- 1 (falha)   : o usuário está bloqueado de visualizar os problemas
+
+2. REGRAS DE NEGÓCIO E PERMISSÕES
+---------------------------------
+- Juiz (`is_judge=true`): visualização irrestrita, inclusive em "before" (RC=0).
+- Equipe técnica (`is_staff`, `is_cstaff`, `is_animeitor`): não participam como
+  competidores, sendo bloqueados durante o contest (RC=1).
+- Usuário Comum:
+  * Em "before": bloqueado para evitar vazamento antecipado (RC=1).
+  * Em "running": liberado para resolver os problemas (RC=0).
+  * Em "ended": liberado para visualização/upsolving (RC=0).
+
+3. TABELA DE CASOS DE TESTE (CT)
+--------------------------------
+ID       | Cargo / Usuário | Fase    | Retorno Esperado | Retorno Obtido | Status
+---------+-----------------+---------+------------------+----------------+-------
+CT01_M17 | Juiz            | before  | 0 (Permitido)    | 0              | PASSED
+CT02_M17 | Staff           | running | 1 (Bloqueado)    | 1              | PASSED
+CT03_M17 | Cstaff          | running | 1 (Bloqueado)    | 1              | PASSED
+CT04_M17 | Animeitor       | running | 1 (Bloqueado)    | 1              | PASSED
+CT05_M17 | Usuário Comum   | before  | 1 (Bloqueado)    | 1              | PASSED
+CT06_M17 | Usuário Comum   | running | 0 (Permitido)    | 0              | PASSED
+CT07_M17 | Usuário Comum   | ended   | 0 (Permitido)    | 0              | PASSED
