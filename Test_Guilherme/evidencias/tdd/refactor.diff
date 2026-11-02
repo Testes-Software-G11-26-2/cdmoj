@@ -1,0 +1,31 @@
+diff --git a/server/api/v1/lib/langs.sh b/server/api/v1/lib/langs.sh
+index ebe09897..97f50790 100644
+--- a/server/api/v1/lib/langs.sh
++++ b/server/api/v1/lib/langs.sh
+@@ -10,13 +10,22 @@
+ # offline-submit, test-run) grava no spool/history a linguagem CAN├öNICA, n├úo a extens├úo crua ΓÇö
+ # antes `sol.cc` entrava como lang "CC", nenhum juiz anunciava `cc` (90 s de LANG_GRACE) e o
+ # julgador morria em "Language 'cc' not availale" (pedido do Ribas, 2026-09-14).
+-_lang_canon(){ (( $# > 0 )) || return 2; local t; t="$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')"
+-  case "$t" in
++_lang_canon(){
++  (( $# > 0 )) || return 2
++  local t
++  t="$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')"
++  _lang_alias_canon "$t"
++}
++
++# Resolve somente aliases; recebe o token ja convertido para minusculas.
++_lang_alias_canon(){
++  case "$1" in
+     c++|cc|cxx|hpp) printf 'cpp';;
+     h)              printf 'c';;
+     py3|py2)        printf 'py';;
+-    *)              printf '%s' "$t";;
+-  esac; }
++    *)              printf '%s' "$1";;
++  esac
++}
+ lang_canon_ext(){ _lang_canon "$1"; }
+ 
+ # PLATFORM_LANGS ΓÇö as linguagens que a PLATAFORMA roda (espelho de mojtools/lang/, menos o
