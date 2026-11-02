@@ -1,0 +1,34 @@
++ Test_Guilherme/lang-allowed.sh:42:scenario: lang_allowed '["JAVA"]' java
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m21/server/api/v1/lib/langs.sh:84:lang_allowed: local 'langs=["JAVA"]' ext=java c empty_check
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m21/server/api/v1/lib/langs.sh:86:lang_allowed: empty_check='["JAVA"]'
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m21/server/api/v1/lib/langs.sh:87:lang_allowed: [[ -z ["JAVA"] ]]
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m21/server/api/v1/lib/langs.sh:87:lang_allowed: [[ ["JAVA"] == \[\] ]]
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m21/server/api/v1/lib/langs.sh:87:lang_allowed: [[ ["JAVA"] == null ]]
+++ /c/Users/negre/repos/moj/cdmoj-guilherme-m21/server/api/v1/lib/langs.sh:88:lang_allowed: _lang_canon java
+++ Test_Guilherme/lang-allowed.sh:33:_lang_canon: printf %s java
+++ Test_Guilherme/lang-allowed.sh:33:_lang_canon: printf '.\n'
+++ Test_Guilherme/lang-allowed.sh:33:_lang_canon: printf %s java
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m21/server/api/v1/lib/langs.sh:88:lang_allowed: c=java
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m21/server/api/v1/lib/langs.sh:89:lang_allowed: jq -e --arg c java 'map( ascii_downcase
+      | (if .=="c++" or .=="cc" or .=="cxx" or .=="hpp" then "cpp"
+         elif .=="h" then "c"
+         elif .=="py3" or .=="py2" then "py" else . end) )
+    | (index($c) != null)'
++ Test_Guilherme/lang-allowed.sh:43:scenario: rc=0
++ Test_Guilherme/lang-allowed.sh:44:scenario: printf %s 0
++ Test_Guilherme/lang-allowed.sh:46:scenario: case "$verdict" in
++ Test_Guilherme/lang-allowed.sh:46:scenario: [[ 0 -eq 0 ]]
++ Test_Guilherme/lang-allowed.sh:47:scenario: [[ ! -s /tmp/tmp.g3OnDutCWx/C18/out ]]
++ Test_Guilherme/lang-allowed.sh:47:scenario: [[ ! -s /tmp/tmp.g3OnDutCWx/C18/err ]]
++ Test_Guilherme/lang-allowed.sh:48:scenario: printf %s java
++ Test_Guilherme/lang-allowed.sh:49:scenario: cmp -s /tmp/tmp.g3OnDutCWx/C18/expected-arg /tmp/tmp.g3OnDutCWx/C18/canon-arg
++ Test_Guilherme/lang-allowed.sh:50:scenario: local calls=0 line
++ Test_Guilherme/lang-allowed.sh:51:scenario: IFS=
++ Test_Guilherme/lang-allowed.sh:51:scenario: read -r line
++ Test_Guilherme/lang-allowed.sh:51:scenario: calls=1
++ Test_Guilherme/lang-allowed.sh:51:scenario: IFS=
++ Test_Guilherme/lang-allowed.sh:51:scenario: read -r line
++ Test_Guilherme/lang-allowed.sh:52:scenario: [[ 1 -eq 1 ]]
++ Test_Guilherme/lang-allowed.sh:53:scenario: calls=0
++ Test_Guilherme/lang-allowed.sh:54:scenario: [[ -f /tmp/tmp.g3OnDutCWx/C18/floor-calls ]]
++ Test_Guilherme/lang-allowed.sh:57:scenario: [[ 0 -eq 0 ]]
