@@ -4,4 +4,8 @@ M14 X2 elem. string    porteiro.override_end = 1700000100
 M14 T1 elem. número    porteiro.override_end = 1700000100
 M14 T2 elem. lista     porteiro.override_end = 1700000100
 M14 T3 regra sem []    porteiro.override_end = None
+M14 A1 all base        porteiro.end_all = 1700000100
+M14 A2 all elem. str   porteiro.end_all = 1700000100
+M14 A3 all objeto      porteiro.end_all = 1700000000
+M14 A4 all elem. núm   porteiro.end_all = 1700000100
 M14 C17 regex 5        porteiro levanta TypeError: first argument must be string or compiled pattern  -> except Exception -> fallback p/ o bash

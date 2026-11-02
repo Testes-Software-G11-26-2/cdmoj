@@ -4,6 +4,8 @@
 # derivados por caixa-preta (partições + limites) e caixa-branca (D1–D7 + MC/DC).
 # C01..C29, X1, X2 e T1..T3 entram no exit code. X1/X2 nasceram como XFAIL e viraram casos obrigatórios no
 # ciclo de TDD (Red); T1..T3 foram criados nesse ciclo.
+# TDD ciclo 2: A1..A4 exercitam a contest_end_all (função vizinha que lê o MESMO arquivo de regras; gate da cerimônia),
+# que tinha o mesmo `.[]?` do M14 antes do ciclo 1.
 # Sem rede, sem config real: MOJ_CONF inexistente e CONTESTSDIR na fixture.
 # Uso: ./Test_Eduardo/time-override-end.sh [--trace]  (--trace grava evidencias/traces/<ID>.trace)
 set -u
@@ -31,7 +33,7 @@ run(){ local cid="$1" pre="$2"; shift 2
     if (( TRACE )); then
       exec 9>"$TRDIR/$cid.trace"; BASH_XTRACEFD=9; PS4='+ ${FUNCNAME[0]:-main}:${LINENO}: '; set -x
     fi
-    time_override_end "$@"
+    "${FN:-time_override_end}" "$@"
   ) >"$T/out" 2>"$T/err"
   RC=$?; OUT="$(<"$T/out")"; ERR="$(<"$T/err")"; }
 
@@ -82,6 +84,10 @@ mk x02 sedes "[\"x\",$OK]"
 mk t01 sedes "[5,$OK]"
 mk t02 sedes "[[\"x\"],$OK]"
 mk t03 sedes "$OK"
+mk a01 sedes "[$OK]"
+mk a02 sedes "[\"x\",$OK]"
+mk a03 sedes "{\"a\":$OK}"
+mk a04 sedes "[5,$OK]"
 
 echo "== caixa-preta: arquivo (E1) =="
 caso C C01 1700000100 0 c01 "$L"
@@ -133,6 +139,14 @@ echo "== TDD ciclo 1: elemento que não é objeto não pode silenciar as outras 
 caso C X2 1700000100  0 x02 "$L"
 caso C T1 1700000100  0 t01 "$L"
 caso C T2 1700000100  0 t02 "$L"
+
+echo "== TDD ciclo 2: contest_end_all (fim p/ todos) também só lê os OBJETOS de uma LISTA (A1..A4) =="
+FN=contest_end_all
+caso C A1 1700000100  0 a01      # base: a regra estende o fim de 1700000000 p/ 1700000100
+caso C A2 1700000100  0 a02      # elemento string não pode silenciar a regra válida
+caso C A3 1700000000  0 a03      # objeto no lugar da lista não vale (fim do conf)
+caso C A4 1700000100  0 a04      # elemento número idem
+unset FN
 
 (( xpass )) && echo "  ($xpass hipótese(s) XPASS: o defeito não se manifestou)"
 echo; echo "RESULT: $pass passed, $fail failed, $xfail xfail"

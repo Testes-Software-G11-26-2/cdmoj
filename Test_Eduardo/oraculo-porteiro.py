@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """oraculo-porteiro.py — executa o ESPELHO em Python do M14 (server/porteiro/moj-porteiro.py) sobre as mesmas
-entradas dos casos X1, X2 e T1–T3 do script bash. É o oráculo de paridade bash × porteiro citado no relatório (testes-eduardo-m14.md). Offline: importa o
+entradas dos casos X1, X2, T1–T3 (ciclo 1, time_override_end) e A1–A4 (ciclo 2, contest_end_all) do script bash. É o oráculo de paridade bash × porteiro citado no relatório (testes-eduardo-m14.md). Offline: importa o
 módulo (não sobe o servidor FastCGI) e usa um CONTESTSDIR temporário, apagado no fim.
 Uso: python3 -I Test_Eduardo/oraculo-porteiro.py"""
 import importlib.util, os, sys, tempfile
@@ -13,6 +13,10 @@ CASOS = [  # (nome, CONTEST_END, time-overrides.json, função)
     ("M14 T1 elem. número", "1700000000", '[5,{"regex":"^sede1-","end":1700000100}]', "override_end"),
     ("M14 T2 elem. lista", "1700000000", '[["x"],{"regex":"^sede1-","end":1700000100}]', "override_end"),
     ("M14 T3 regra sem []", "1700000000", '{"regex":"^sede1-","end":1700000100}', "override_end"),
+    ("M14 A1 all base", "1700000000", '[{"regex":"^sede1-","end":1700000100}]', "end_all"),
+    ("M14 A2 all elem. str", "1700000000", '["x",{"regex":"^sede1-","end":1700000100}]', "end_all"),
+    ("M14 A3 all objeto", "1700000000", '{"a":{"regex":"^sede1-","end":1700000100}}', "end_all"),
+    ("M14 A4 all elem. núm", "1700000000", '[5,{"regex":"^sede1-","end":1700000100}]', "end_all"),
     ("M14 C17 regex 5", "1700000000", '[{"regex":5,"end":1700000900},{"regex":"^sede1-","end":1700000200}]', "override_end"),
 ]
 
@@ -30,6 +34,6 @@ with tempfile.TemporaryDirectory() as tmp:
         with open(os.path.join(tmp, c, "time-overrides.json"), "w") as f:
             f.write(tov)
         try:
-            print(f"{nome:22s} porteiro.{fn} = {getattr(p, fn)(c, L)!r}")
+            print(f"{nome:22s} porteiro.{fn} = {(getattr(p, fn)(c) if fn == "end_all" else getattr(p, fn)(c, L))!r}")
         except Exception as e:  # o porteiro faz o mesmo: except Exception -> declina -> o bash responde
             print(f"{nome:22s} porteiro levanta {type(e).__name__}: {e}  -> except Exception -> fallback p/ o bash")
