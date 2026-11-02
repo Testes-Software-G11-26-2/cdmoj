@@ -36,19 +36,28 @@ epoch_dec_to() {
   if [[ "$__ed_ref" =~ ^[0-9]+$ ]]; then __ed_ref=$((10#$__ed_ref)); else __ed_ref=0; fi
 }
 
+# num_trunc_to <var> : número do JSON como o jq o ecoa ("1700000100.5", "1.7000001E+9", "1E+10") -> inteiro
+# TRUNCADO na própria variável (nameref, zero fork), como o int(e) do porteiro (override_end). Sem conta em ponto
+# flutuante: desloca a vírgula pelo expoente e corta a fração. Valor que não casa (negativo, expoente negativo,
+# texto) fica como veio — e o chamador o descarta por não ser só dígitos.
+num_trunc_to() {
+  local -n __nt_ref="$1"
+  [[ "$__nt_ref" =~ ^([0-9]+)(\.([0-9]*))?([eE]\+?([0-9]+))?$ ]] || return 0
+  local __nt_d="${BASH_REMATCH[1]}${BASH_REMATCH[3]}" __nt_p=$(( ${#BASH_REMATCH[1]} + 10#${BASH_REMATCH[5]:-0} ))
+  while (( ${#__nt_d} < __nt_p )); do __nt_d+=0; done
+  __nt_ref=$((10#${__nt_d:0:__nt_p}))
+}
+
 # contest_end_effective <contest> <login> -> fim EFETIVO (epoch; 0 = sem limite):
 # CONTEST_END do conf, PRORROGADO pela regra do time-overrides.json que casar (o override
-# só ESTENDE — nunca encurta — e só vale quando há um fim definido no conf).
+# só ESTENDE — nunca encurta — e só vale quando há um fim definido no conf). O `end` da regra vale TRUNCADO
+# (num_trunc_to), como no porteiro: float e notação exponencial também estendem.
 contest_end_effective() {
   local CONTEST_START=0 CONTEST_END=0 oend
   source "$CONTESTSDIR/$1/conf" 2>/dev/null
   epoch_dec_to CONTEST_END
   oend="$(time_override_end "$1" "${2:-}")"
-  if [[ "$oend" =~ ^([0-9]+)(\.([0-9]*))?([eE]\+?([0-9]+))?$ ]]; then
-    local d="${BASH_REMATCH[1]}${BASH_REMATCH[3]}" p=$(( ${#BASH_REMATCH[1]} + 10#${BASH_REMATCH[5]:-0} ))
-    while (( ${#d} < p )); do d+=0; done
-    oend=$((10#${d:0:p}))
-  fi
+  num_trunc_to oend
   [[ "$oend" =~ ^[0-9]+$ ]] && (( CONTEST_END > 0 && oend > CONTEST_END )) && CONTEST_END=$oend
   printf '%s' "$CONTEST_END"
 }
