@@ -1,0 +1,22 @@
+diff --git a/server/api/v1/lib/contest-gate.sh b/server/api/v1/lib/contest-gate.sh
+index 0c2e89a8..ee42f056 100644
+--- a/server/api/v1/lib/contest-gate.sh
++++ b/server/api/v1/lib/contest-gate.sh
+@@ -18,13 +18,15 @@
+ # de $l — ver a armadilha de contexto de args do jq); try/catch protege de regex inválido.
+ # A prorrogação por sede é do módulo `sedes`: DESLIGADO, o arquivo não vale (decisão do Ribas, 03/10/2026). O teste
+ # do módulo vem DEPOIS do do arquivo (custo zero p/ quem não tem prorrogação).
++# `regras` = só os OBJETOS de uma LISTA, como o espelho do porteiro (override_end): arquivo que não é lista
++# não vale, e elemento que não é objeto é pulado em vez de abortar o jq e silenciar as regras válidas.
+ _tov_on(){ declare -F mod_on >/dev/null || source "${_LIBDIR:-${BASH_SOURCE[0]%/*}}/modules.sh"; mod_on "$1" sedes; }
+ time_override_end() {
+   local f="$CONTESTSDIR/$1/time-overrides.json"
+   [[ -s "$f" && -n "${2:-}" ]] || return 0
+   _tov_on "$1" || return 0
+-  jq -r --arg l "$2" '
+-    first(.[]? | (.regex // "") as $rr | (.end) as $e
++  jq -r --arg l "$2" 'def regras: arrays | .[] | objects;
++    first(regras | (.regex // "") as $rr | (.end) as $e
+           | select($rr != "" and ($e|type=="number") and (try ($l | test($rr)) catch false))
+           | $e) // empty' "$f" 2>/dev/null
+ }
