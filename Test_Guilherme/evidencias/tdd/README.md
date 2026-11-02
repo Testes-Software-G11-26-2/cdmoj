@@ -15,5 +15,4 @@ Execucao realizada pelo integrante em 02/11/2026: 20 aprovados, 0 falhas, inclui
 ## Refactor
 
 Refatoracao estrutural implementada, descrita em refactor.md e refactor.diff.
-A reexecucao da mesma suite ainda esta pendente; Green nao comprova por si
-so a preservacao do comportamento depois desta mudanca.
+Reexecucao confirmada em 02/11/2026: 20 aprovados, 0 falhas, com os mesmos testes e resultados esperados do Green. Log: refactor.txt; 20 traces em refactor/traces/; captura: ../img/m19-refactor.png. A captura mostra exit 0. O ciclo Red -> Green -> Refactor esta completo.
