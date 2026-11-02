@@ -1,0 +1,36 @@
++ Test_Guilherme/lang-allowed.sh:42:scenario: lang_allowed '[' py
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m21/server/api/v1/lib/langs.sh:90:lang_allowed: local 'langs=[' ext=py c
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m21/server/api/v1/lib/langs.sh:92:lang_allowed: _lang_uses_platform_floor '['
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m21/server/api/v1/lib/langs.sh:84:_lang_uses_platform_floor: local 'langs=[' empty_check
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m21/server/api/v1/lib/langs.sh:85:_lang_uses_platform_floor: empty_check='['
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m21/server/api/v1/lib/langs.sh:86:_lang_uses_platform_floor: [[ -z [ ]]
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m21/server/api/v1/lib/langs.sh:86:_lang_uses_platform_floor: [[ [ == \[\] ]]
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m21/server/api/v1/lib/langs.sh:86:_lang_uses_platform_floor: [[ [ == null ]]
+++ /c/Users/negre/repos/moj/cdmoj-guilherme-m21/server/api/v1/lib/langs.sh:95:lang_allowed: _lang_canon py
+++ Test_Guilherme/lang-allowed.sh:33:_lang_canon: printf %s py
+++ Test_Guilherme/lang-allowed.sh:33:_lang_canon: printf '.\n'
+++ Test_Guilherme/lang-allowed.sh:33:_lang_canon: printf %s py
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m21/server/api/v1/lib/langs.sh:95:lang_allowed: c=py
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m21/server/api/v1/lib/langs.sh:96:lang_allowed: jq -e --arg c py 'map( ascii_downcase
+      | (if .=="c++" or .=="cc" or .=="cxx" or .=="hpp" then "cpp"
+         elif .=="h" then "c"
+         elif .=="py3" or .=="py2" then "py" else . end) )
+    | (index($c) != null)'
++ Test_Guilherme/lang-allowed.sh:43:scenario: rc=5
++ Test_Guilherme/lang-allowed.sh:44:scenario: printf %s 5
++ Test_Guilherme/lang-allowed.sh:46:scenario: case "$verdict" in
++ Test_Guilherme/lang-allowed.sh:46:scenario: [[ 5 -ne 0 ]]
++ Test_Guilherme/lang-allowed.sh:47:scenario: [[ ! -s /tmp/tmp.v3tDKauwsh/C23/out ]]
++ Test_Guilherme/lang-allowed.sh:47:scenario: [[ ! -s /tmp/tmp.v3tDKauwsh/C23/err ]]
++ Test_Guilherme/lang-allowed.sh:48:scenario: printf %s py
++ Test_Guilherme/lang-allowed.sh:49:scenario: cmp -s /tmp/tmp.v3tDKauwsh/C23/expected-arg /tmp/tmp.v3tDKauwsh/C23/canon-arg
++ Test_Guilherme/lang-allowed.sh:50:scenario: local calls=0 line
++ Test_Guilherme/lang-allowed.sh:51:scenario: IFS=
++ Test_Guilherme/lang-allowed.sh:51:scenario: read -r line
++ Test_Guilherme/lang-allowed.sh:51:scenario: calls=1
++ Test_Guilherme/lang-allowed.sh:51:scenario: IFS=
++ Test_Guilherme/lang-allowed.sh:51:scenario: read -r line
++ Test_Guilherme/lang-allowed.sh:52:scenario: [[ 1 -eq 1 ]]
++ Test_Guilherme/lang-allowed.sh:53:scenario: calls=0
++ Test_Guilherme/lang-allowed.sh:54:scenario: [[ -f /tmp/tmp.v3tDKauwsh/C23/floor-calls ]]
++ Test_Guilherme/lang-allowed.sh:57:scenario: [[ 0 -eq 0 ]]
