@@ -1,4 +1,4 @@
-$ ./Test_Eduardo/time-override-end.sh   # 2026-11-02, depois do TDD (commit base 11ca7b63 + ciclo 1)
+$ ./Test_Eduardo/time-override-end.sh   # 2026-11-02, depois dos 2 ciclos de TDD (commit 32bba9be)
 == caixa-preta: arquivo (E1) ==
   ok: C01 — obtido: rc0 "1700000100"
   ok: C02 — obtido: rc0 ""
@@ -41,6 +41,11 @@ $ ./Test_Eduardo/time-override-end.sh   # 2026-11-02, depois do TDD (commit base
   ok: X2 — obtido: rc0 "1700000100"
   ok: T1 — obtido: rc0 "1700000100"
   ok: T2 — obtido: rc0 "1700000100"
+== TDD ciclo 2: contest_end_all (fim p/ todos) também só lê os OBJETOS de uma LISTA (A1..A4) ==
+  ok: A1 — obtido: rc0 "1700000100"
+  ok: A2 — obtido: rc0 "1700000100"
+  ok: A3 — obtido: rc0 "1700000000"
+  ok: A4 — obtido: rc0 "1700000100"
 
-RESULT: 33 passed, 0 failed, 0 xfail
+RESULT: 37 passed, 0 failed, 0 xfail
 exit=0

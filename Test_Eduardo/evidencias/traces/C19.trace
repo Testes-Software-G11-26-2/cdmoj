@@ -1,18 +1,18 @@
-+ run:34: time_override_end c19 sede1-alfa
-+ time_override_end:25: local f=/tmp/tmp.odHZUoFhG8/contests/c19/time-overrides.json
-+ time_override_end:26: [[ -s /tmp/tmp.odHZUoFhG8/contests/c19/time-overrides.json ]]
-+ time_override_end:26: [[ -n sede1-alfa ]]
-+ time_override_end:27: _tov_on c19
-+ _tov_on:23: declare -F mod_on
-+ _tov_on:23: source /home/eduardo/testes-g11/cdmoj/server/api/v1/lib/modules.sh
++ run:36: time_override_end c19 sede1-alfa
++ time_override_end:28: local f=/tmp/tmp.2KwHJvjd1d/contests/c19/time-overrides.json
++ time_override_end:29: [[ -s /tmp/tmp.2KwHJvjd1d/contests/c19/time-overrides.json ]]
++ time_override_end:29: [[ -n sede1-alfa ]]
++ time_override_end:30: _tov_on c19
++ _tov_on:26: declare -F mod_on
++ _tov_on:26: source /home/eduardo/testes-g11/cdmoj/server/api/v1/lib/modules.sh
 ++ source:21: MODULES=(sedes maquinas rodadas documentos baloes coortes inscricoes telao classificacao virtual esqueletos)
-+ _tov_on:23: mod_on c19 sedes
++ _tov_on:26: mod_on c19 sedes
 + mod_on:28: local __mo_v
 + mod_on:28: conf_value_to __mo_v c19 CONTEST_MODULES
 + conf_value_to:292: local -n __cv_ref=__mo_v
-+ conf_value_to:293: local __cv_f=/tmp/tmp.odHZUoFhG8/contests/c19/conf __cv_k=CONTEST_MODULES= __cv_line __cv_v= __cv_o __cv_i __cv_c __cv_hit=0
++ conf_value_to:293: local __cv_f=/tmp/tmp.2KwHJvjd1d/contests/c19/conf __cv_k=CONTEST_MODULES= __cv_line __cv_v= __cv_o __cv_i __cv_c __cv_hit=0
 + conf_value_to:294: __cv_ref=
-+ conf_value_to:295: [[ -r /tmp/tmp.odHZUoFhG8/contests/c19/conf ]]
++ conf_value_to:295: [[ -r /tmp/tmp.2KwHJvjd1d/contests/c19/conf ]]
 + conf_value_to:296: IFS=
 + conf_value_to:296: read -r __cv_line
 + conf_value_to:297: [[ CONTEST_ID=c19 == CONTEST_MODULES\=* ]]
@@ -37,4 +37,4 @@
 + conf_value_to:312: return 0
 + mod_on:28: __mo_v=,sedes,
 + mod_on:28: [[ ,sedes, == *,sedes,* ]]
-+ time_override_end:28: jq -r --arg l sede1-alfa $'def regras: arrays | .[] | objects;\n    first(regras | (.regex // "") as $rr | (.end) as $e\n          | select($rr != "" and ($e|type=="number") and (try ($l | test($rr)) catch false))\n          | $e) // empty' /tmp/tmp.odHZUoFhG8/contests/c19/time-overrides.json
++ time_override_end:31: jq -r --arg l sede1-alfa $'def regras: arrays | .[] | objects; \n    first(regras | (.regex // "") as $rr | (.end) as $e\n          | select($rr != "" and ($e|type=="number") and (try ($l | test($rr)) catch false))\n          | $e) // empty' /tmp/tmp.2KwHJvjd1d/contests/c19/time-overrides.json

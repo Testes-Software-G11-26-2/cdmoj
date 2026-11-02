@@ -1,0 +1,50 @@
++ run:36: contest_end_all a04
++ contest_end_all:56: local CONTEST_START=0 CONTEST_END=0 mx f=/tmp/tmp.2KwHJvjd1d/contests/a04/time-overrides.json
++ contest_end_all:57: source /tmp/tmp.2KwHJvjd1d/contests/a04/conf
+++ source:1: CONTEST_ID=a04
+++ source:2: CONTEST_END=1700000000
+++ source:3: CONTEST_MODULES=sedes
++ contest_end_all:58: [[ 1700000000 =~ ^[0-9]+$ ]]
++ contest_end_all:59: [[ -s /tmp/tmp.2KwHJvjd1d/contests/a04/time-overrides.json ]]
++ contest_end_all:59: ((  CONTEST_END > 0  ))
++ contest_end_all:59: _tov_on a04
++ _tov_on:26: declare -F mod_on
++ _tov_on:26: source /home/eduardo/testes-g11/cdmoj/server/api/v1/lib/modules.sh
+++ source:21: MODULES=(sedes maquinas rodadas documentos baloes coortes inscricoes telao classificacao virtual esqueletos)
++ _tov_on:26: mod_on a04 sedes
++ mod_on:28: local __mo_v
++ mod_on:28: conf_value_to __mo_v a04 CONTEST_MODULES
++ conf_value_to:292: local -n __cv_ref=__mo_v
++ conf_value_to:293: local __cv_f=/tmp/tmp.2KwHJvjd1d/contests/a04/conf __cv_k=CONTEST_MODULES= __cv_line __cv_v= __cv_o __cv_i __cv_c __cv_hit=0
++ conf_value_to:294: __cv_ref=
++ conf_value_to:295: [[ -r /tmp/tmp.2KwHJvjd1d/contests/a04/conf ]]
++ conf_value_to:296: IFS=
++ conf_value_to:296: read -r __cv_line
++ conf_value_to:297: [[ CONTEST_ID=a04 == CONTEST_MODULES\=* ]]
++ conf_value_to:297: continue
++ conf_value_to:296: IFS=
++ conf_value_to:296: read -r __cv_line
++ conf_value_to:297: [[ CONTEST_END=1700000000 == CONTEST_MODULES\=* ]]
++ conf_value_to:297: continue
++ conf_value_to:296: IFS=
++ conf_value_to:296: read -r __cv_line
++ conf_value_to:297: [[ CONTEST_MODULES=sedes == CONTEST_MODULES\=* ]]
++ conf_value_to:298: __cv_v=sedes
++ conf_value_to:298: __cv_hit=1
++ conf_value_to:296: IFS=
++ conf_value_to:296: read -r __cv_line
++ conf_value_to:296: [[ -n '' ]]
++ conf_value_to:300: ((  __cv_hit  ))
++ conf_value_to:301: __cv_v=sedes
++ conf_value_to:301: __cv_v=sedes
++ conf_value_to:302: [[ sedes == *\\* ]]
++ conf_value_to:311: __cv_ref=sedes
++ conf_value_to:312: return 0
++ mod_on:28: __mo_v=,sedes,
++ mod_on:28: [[ ,sedes, == *,sedes,* ]]
+++ contest_end_all:60: jq -r 'def regras: arrays | .[] | objects; [regras | select((.regex//"") != "" and (.end|type=="number")) | .end] | max // empty' /tmp/tmp.2KwHJvjd1d/contests/a04/time-overrides.json
++ contest_end_all:60: mx=1700000100
++ contest_end_all:61: [[ 1700000100 =~ ^[0-9]+$ ]]
++ contest_end_all:61: ((  mx > CONTEST_END  ))
++ contest_end_all:61: CONTEST_END=1700000100
++ contest_end_all:63: printf %s 1700000100

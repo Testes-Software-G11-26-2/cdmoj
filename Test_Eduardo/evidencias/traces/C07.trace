@@ -1,5 +1,5 @@
-+ run:34: time_override_end c01 ''
-+ time_override_end:25: local f=/tmp/tmp.odHZUoFhG8/contests/c01/time-overrides.json
-+ time_override_end:26: [[ -s /tmp/tmp.odHZUoFhG8/contests/c01/time-overrides.json ]]
-+ time_override_end:26: [[ -n '' ]]
-+ time_override_end:26: return 0
++ run:36: time_override_end c01 ''
++ time_override_end:28: local f=/tmp/tmp.2KwHJvjd1d/contests/c01/time-overrides.json
++ time_override_end:29: [[ -s /tmp/tmp.2KwHJvjd1d/contests/c01/time-overrides.json ]]
++ time_override_end:29: [[ -n '' ]]
++ time_override_end:29: return 0

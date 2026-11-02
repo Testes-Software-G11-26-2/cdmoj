@@ -5,11 +5,11 @@
 | Item | Valor |
 |---|---|
 | Método | M14 `time_override_end`. Também exercita a auxiliar `_tov_on` (módulo `sedes`) e o `mod_on` real de `lib/modules.sh` |
-| Arquivo | `server/api/v1/lib/contest-gate.sh`: `_tov_on` na linha 23, `time_override_end` nas linhas 24–32 (números de linha do código **depois** do ciclo de TDD; antes eram 21 e 22–30) |
-| Commit | `ec13d5cc` (`master`) como base dos testes; o ciclo de TDD (seção 7) altera `contest-gate.sh` nesta branch |
+| Arquivo | `server/api/v1/lib/contest-gate.sh`, depois dos 2 ciclos de TDD: `TOV_RULES_JQ` (o filtro `regras`, ciclo 2) na linha 25, `_tov_on` na linha 26, `time_override_end` nas linhas 27–35 e `contest_end_all` (ciclo 2) nas linhas 55–64. Depois do ciclo 1 eram 23 e 24–32; antes do TDD, 21 e 22–30 |
+| Commit | `ec13d5cc` (`master`) como base dos testes; os 2 ciclos de TDD (seção 7) alteram `contest-gate.sh` nesta branch |
 | Branch | `test/eduardo-m14` |
 | Ferramentas | GNU bash 5.3.20(1)-release · jq-1.8.2 · Python 3.14.8 (oráculo, 2026-11-01) e 3.14.9 (oráculo, 2026-11-02) · kcov 43 · ImageMagick 7.1.2-34 · Arch Linux, kernel 6.18.57-2-lts |
-| Data | 2026-11-01 (testes) · 2026-11-02 (ciclo de TDD e evidências regeradas) |
+| Data | 2026-11-01 (testes) · 2026-11-02 (2 ciclos de TDD e evidências regeradas) |
 | Script | `Test_Eduardo/time-override-end.sh`: teste de unidade, offline, com fixture em `mktemp -d` |
 
 Para reproduzir, rode na raiz do `cdmoj`:
@@ -17,7 +17,7 @@ Para reproduzir, rode na raiz do `cdmoj`:
 ```bash
 ./Test_Eduardo/time-override-end.sh                     # execução normal (exit 0 = nenhum caso C falhou)
 ./Test_Eduardo/time-override-end.sh --trace             # grava evidencias/traces/<ID>.trace (xtrace)
-python3 -I Test_Eduardo/oraculo-porteiro.py             # oráculo: o espelho em Python (porteiro) nas entradas de X1, X2 e T1–T3
+python3 -I Test_Eduardo/oraculo-porteiro.py             # oráculo: o espelho em Python (porteiro) nas entradas de X1, X2, T1–T3 e A1–A4
 bash server/test/smoke-time-overrides.sh                # regressão do TDD (teste do upstream, não alterado)
 kcov --include-path="$PWD/server/api/v1/lib/contest-gate.sh" Test_Eduardo/evidencias/cobertura ./Test_Eduardo/time-override-end.sh
 ```
@@ -26,7 +26,7 @@ O script carrega `lib/common.sh` e `lib/contest-gate.sh` com `MOJ_CONF` apontand
 
 ## 2. Contrato
 
-O contrato vem do comentário acima da função (linhas 13–22; as linhas 21–22 foram acrescentadas no Refactor do TDD), do writer da API (`handlers/contest/admin/time-overrides.sh`) e do espelho em Python (`server/porteiro/moj-porteiro.py`, `override_end`, cuja docstring diz *"Espelho do time_override_end"*).
+O contrato vem do comentário acima da função (linhas 13–24; as linhas 21–24 foram acrescentadas nos Refactors do TDD), do writer da API (`handlers/contest/admin/time-overrides.sh`) e do espelho em Python (`server/porteiro/moj-porteiro.py`, `override_end`, cuja docstring diz *"Espelho do time_override_end"*).
 
 - *"time_override_end <contest> <login> -> ecoa o `end` (epoch) da 1ª regra de contests/<c>/time-overrides.json cujo regex casa com o login; vazio se nenhuma."*
 - *"Formato: [{regex, end, reason?}, …] — 1ª que casa vence."*
@@ -58,11 +58,14 @@ Valor limite só onde há ordem: `end` 0 × 1; posição 1ª × última regra; f
 | C03 | I2 | inválida |
 | C04 | I3 | inválida |
 | C05 | V2 | válida |
-| X1 | I4 (era o C06 do planejamento) | inválida (XFAIL até o TDD; obrigatório desde o Red) |
+| X1 | I4 (era o C06 do planejamento) | inválida (XFAIL até o TDD; obrigatório desde o Red do ciclo 1) |
 | X2 | I17 (elemento string) | inválida (XFAIL até o TDD; obrigatório desde o Red) |
 | T1 | I17 (elemento número), criado no TDD | inválida |
 | T2 | I17 (elemento lista), criado no TDD | inválida |
 | T3 | I4 (uma regra sem os colchetes), criado no TDD | inválida |
+| A1–A4 | as mesmas partições do arquivo, lidas pela `contest_end_all` (ciclo 2): A1 lista válida (V1), A2 elemento string (I17), A3 objeto (I4), A4 elemento número (I17) | A1 válida; A2–A4 inválidas |
+
+A1–A4 testam a função vizinha `contest_end_all`, que lê o **mesmo** `time-overrides.json` (fim para todos, gate da cerimônia). Não é método do roteiro do M14: entrou no ciclo 2 do TDD, por decisão do Eduardo, porque tinha o mesmo `.[]?` do M14 antes do ciclo 1.
 | C07 | I5 | inválida |
 | C08 | I6 | inválida |
 | C09 | I7 | inválida |
@@ -93,15 +96,15 @@ Uma inválida por vez: nos casos C14–C20 só a 1ª regra é inválida, e a 2ª
 
 | Decisão | Linha | Expressão |
 |---|---|---|
-| **D1** | 26 | `[[ -s "$f" && -n "${2:-}" ]] \|\| return 0`. A = `-s "$f"`, B = `-n "$2"` |
-| **D2** | 23 | `declare -F mod_on \|\| source …/modules.sh`: o `mod_on` já está definido? |
-| **D3** | 27 | `_tov_on "$1" \|\| return 0`: o `mod_on <c> sedes` deu 0? |
-| **D4** | 30 (jq) | `select(c1 and c2 and c3)`. c1 = `$rr != ""`, c2 = `$e\|type=="number"`, c3 = `try ($l\|test($rr)) catch false` |
-| **D5** | 29 (jq) | `.regex // ""`: regex ausente ou null vira `""` |
-| **D6** | 29 (jq) | `first(…)`: 0 elementos, a 1ª que passa, só a última passa |
-| **D7** | 31 (jq) | `… // empty`: nenhuma regra passou → saída vazia |
-| **D8** | 28 (jq, TDD) | `arrays` no `def regras`: o arquivo é uma lista? |
-| **D9** | 28 (jq, TDD) | `objects` no `def regras`: o elemento é um objeto? |
+| **D1** | 29 | `[[ -s "$f" && -n "${2:-}" ]] \|\| return 0`. A = `-s "$f"`, B = `-n "$2"` |
+| **D2** | 26 | `declare -F mod_on \|\| source …/modules.sh`: o `mod_on` já está definido? |
+| **D3** | 30 | `_tov_on "$1" \|\| return 0`: o `mod_on <c> sedes` deu 0? |
+| **D4** | 33 (jq) | `select(c1 and c2 and c3)`. c1 = `$rr != ""`, c2 = `$e\|type=="number"`, c3 = `try ($l\|test($rr)) catch false` |
+| **D5** | 32 (jq) | `.regex // ""`: regex ausente ou null vira `""` |
+| **D6** | 32 (jq) | `first(…)`: 0 elementos, a 1ª que passa, só a última passa |
+| **D7** | 34 (jq) | `… // empty`: nenhuma regra passou → saída vazia |
+| **D8** | 25 (jq, TDD; usado nas linhas 31 e 60) | `arrays` no `def regras`: o arquivo é uma lista? |
+| **D9** | 25 (jq, TDD; usado nas linhas 31 e 60) | `objects` no `def regras`: o elemento é um objeto? |
 
 Cobertura de decisão (V/F), com resultado real:
 
@@ -114,14 +117,14 @@ Cobertura de decisão (V/F), com resultado real:
 | D5 (`//` usado) | C15 | demais |
 | D6 | C23 (1ª de várias), C24 (última) | C05 (lista vazia) |
 | D7 (`empty`) | C05, C13, C26, C27, X1, T3 | C01 e demais com saída |
-| D8 (é lista) | C01 e demais | X1, T3 |
-| D9 (é objeto) | C01 e demais | X2 (string), T1 (número), T2 (lista) |
+| D8 (é lista) | C01 e demais; na `contest_end_all`, A1, A2, A4 | X1, T3; na `contest_end_all`, A3 |
+| D9 (é objeto) | C01 e demais; A1 | X2 (string), T1 (número), T2 (lista); na `contest_end_all`, A2 (string), A4 (número) |
 
 **Curto-circuito.** Em D1, com A=F o bash não avalia B (C02, C03: o trace vai de `[[ -s … ]]` direto para `return 0`). Em D4, o `and` do jq também curto-circuita: com c1=F, c2 e c3 não são avaliados (C14), e com c2=F, c3 não é (C18). Por isso o `test()` nunca roda com `$rr` vazio.
 
 **Mascaramento e inviabilidade.** D3 só é alcançada com D1 = V, porque o teste do módulo vem **depois** do teste do arquivo, como o contrato pede. Assim, "módulo desligado e arquivo ausente" não distingue D3. Isso é por projeto, não lacuna. Em D4, c3 com regex não string (C17) cai no `catch false`. No porteiro a mesma entrada levanta `TypeError` (seção 6, oráculo), mas o resultado final é o mesmo, porque o porteiro declina e o bash responde.
 
-### Fluxo de `time_override_end` (código depois do TDD)
+### Fluxo de `time_override_end` (código depois dos 2 ciclos de TDD)
 
 ```mermaid
 flowchart TD
@@ -168,7 +171,7 @@ flowchart TD
 | C01 × **C18** | c2 (1ª regra) | V | V | F | V | V | **F** | – | 1ª pulada → `1700000200` |
 | C01 × **C13** | c3 | V | V | F | V | V | V | **F** | vazio |
 
-D8 e D9 (criadas no Refactor do TDD) também ficam dentro do jq. Os pares são por entrada/saída: **C01 × X1** para D8 (a mesma regra dentro de uma lista vale; dentro de um objeto, não) e **C01 × X2** para D9 (a mesma regra válida vale sozinha e continua valendo depois de um elemento que não é objeto, que é pulado).
+D8 e D9 (criadas no ciclo 1 do TDD e, desde o ciclo 2, compartilhadas com a `contest_end_all`) também ficam dentro do jq. Na `contest_end_all` os pares são A1 × A3 (D8) e A1 × A2 (D9). Os pares são por entrada/saída: **C01 × X1** para D8 (a mesma regra dentro de uma lista vale; dentro de um objeto, não) e **C01 × X2** para D9 (a mesma regra válida vale sozinha e continua valendo depois de um elemento que não é objeto, que é pulado).
 
 "–" = não avaliado (curto-circuito). D2 é uma condição só, e as duas saídas dão o mesmo resultado: o par mostra que o `source` só acontece quando o `mod_on` não existe (decisão V/F, não independência sobre a saída). Em c1 e c2 o par é por **elemento**: a 1ª regra do C14/C18 teria ganhado se passasse (`end 1700000900`), e o resultado `1700000200` mostra que ela foi descartada.
 
@@ -176,7 +179,7 @@ O xtrace enxerga D1, D2 e D3 termo a termo (`time_override_end:26: [[ -s … ]]`
 
 ## 5. Resultados
 
-**Execução atual, depois do TDD** (2026-11-02, `evidencias/saida-2026-11-02.txt`): **`RESULT: 33 passed, 0 failed, 0 xfail`**, exit 0. A execução com `--trace` (que regerou os 33 traces) e a execução sob kcov deram o mesmo resultado.
+**Execução atual, depois dos 2 ciclos de TDD** (2026-11-02, `evidencias/saida-2026-11-02.txt`, regerada depois do ciclo 2): **`RESULT: 37 passed, 0 failed, 0 xfail`**, exit 0. A execução com `--trace` (que regerou os 37 traces) e a execução sob kcov deram o mesmo resultado. Depois do ciclo 1 o resultado era `33 passed, 0 failed, 0 xfail` (`evidencias/tdd/ciclo1-3-refactor.txt`).
 
 **Execução anterior ao TDD**, mantida como histórico (2026-11-01, `evidencias/saida-2026-11-01.txt`): `RESULT: 28 passed, 0 failed, 2 xfail`, exit 0, com X1 e X2 em XFAIL. Os casos T1–T3 ainda não existiam.
 
@@ -217,12 +220,16 @@ A coluna "Obtido" abaixo é a da execução atual. Para X1 e X2, o obtido antes 
 | T1 | `[5, {regex,end}]` | `1700000100` | rc0 `1700000100` | ok | I17 (número); criado no Red; falhou no Red (rc5 vazio) |
 | T2 | `[["x"], {regex,end}]` | `1700000100` | rc0 `1700000100` | ok | I17 (lista); criado no Red; falhou no Red (rc5 vazio) |
 | T3 | `{regex,end}` sem colchetes | vazio | rc0 vazio | ok | I4; criado no Red; **passava no Red por acidente** (rc5: o jq abortava). Ver seção 7 |
+| A1 | `contest_end_all`: `[regra end 1700000100]`, END 1700000000 | `1700000100` | rc0 `1700000100` | ok | ciclo 2; base; D8=V, D9=V |
+| A2 | `contest_end_all`: `["x", regra]` | `1700000100` | rc0 `1700000100` (Red: rc0 `1700000000`) | ok | ciclo 2; D9=F: elemento pulado |
+| A3 | `contest_end_all`: `{"a": regra}` | `1700000000` | rc0 `1700000000` (Red: rc0 `1700000100`) | ok | ciclo 2; D8=F: objeto não vale |
+| A4 | `contest_end_all`: `[5, regra]` | `1700000100` | rc0 `1700000100` (Red: rc0 `1700000000`) | ok | ciclo 2; D9=F |
 
-![Execução completa depois do TDD — 33 passed, 0 failed, 0 xfail](evidencias/img/execucao-completa.png)
+![Execução completa depois dos 2 ciclos de TDD — 37 passed, 0 failed, 0 xfail](evidencias/img/execucao-completa.png)
 
 ### Traces dos pares MC/DC
 
-Traces regerados em 2026-11-02, sobre o código depois do TDD (as linhas do trace já são as novas: D1 na 26, `_tov_on` na 23, o `jq` na 28).
+Traces regerados em 2026-11-02, sobre o código depois dos 2 ciclos de TDD (as linhas do trace já são as novas: D1 na 29, `_tov_on` na 26, o `jq` na 31; na `contest_end_all`, o `jq` na 60).
 
 ![C01 × C02 — MC/DC da condição A (-s f) de D1](evidencias/img/mcdc-D1-A.png)
 
@@ -234,28 +241,33 @@ Traces regerados em 2026-11-02, sobre o código depois do TDD (as linhas do trac
 
 ![C01 × C14/C18/C13 — D4 dentro do jq (entrada/saída; o xtrace não enxerga)](evidencias/img/mcdc-D4.png)
 
+![A2 × A3 — contest_end_all (ciclo 2): elemento string pulado × objeto no lugar da lista](evidencias/img/mcdc-all.png)
+
 ### Cobertura de linhas (kcov)
 
 Comando: `kcov --include-path="$PWD/server/api/v1/lib/contest-gate.sh" Test_Eduardo/evidencias/cobertura ./Test_Eduardo/time-override-end.sh`. O kcov roda **o script** (executável, com shebang), e não `bash <script>`. O relatório fica em `evidencias/cobertura/time-override-end.sh.e59b551128ea4781/` (`cobertura.xml`, `coverage.json`, `index.html`). O symlink que o kcov cria na raiz da pasta (caminho absoluto da máquina) foi apagado.
 
-O kcov foi rodado de novo em 2026-11-02, sobre o código **depois do TDD**. Este relatório considera **só** as linhas 23–31. O resto de `contest-gate.sh` não é alvo deste teste.
+O kcov foi rodado de novo em 2026-11-02, sobre o código **depois dos 2 ciclos de TDD**. Este relatório considera as linhas 25–35 (o M14 e o filtro `regras`) e, desde o ciclo 2, as linhas 55–64 (`contest_end_all`). O resto de `contest-gate.sh` não é alvo deste teste.
 
 | Linha | Hits | Observação |
 |---|---|---|
-| 23 (`_tov_on`) | não instrumentada | função de uma linha; o xtrace mostra que roda (`_tov_on:23: declare -F mod_on`) |
-| 24 (`time_override_end() {`) | não instrumentada | definição de função |
-| 25, 26, 27, 28 | 33, 68, 32, 26 | todas cobertas |
-| 29, 30, 31 | 0 | **artefato**: são a continuação da string do programa jq (aspas simples abertas na linha 28). Não há comando bash nelas, e elas executam junto com a linha 28 |
+| 25 (`TOV_RULES_JQ=…`) | 1 | coberta (roda uma vez, quando a lib é carregada) |
+| 26 (`_tov_on`) | não instrumentada | função de uma linha; o xtrace mostra que roda (`_tov_on:26: declare -F mod_on`) |
+| 27 (`time_override_end() {`) | não instrumentada | definição de função |
+| 28, 29, 30, 31 | 33, 68, 32, 26 | todas cobertas |
+| 32, 33, 34 | 0 | **artefato**: são a continuação da string do programa jq (aspas simples abertas na linha 31). Não há comando bash nelas, e elas executam junto com a linha 31 |
+| 55 (`contest_end_all() {`), 62 (`fi`), 64 (`}`) | não instrumentadas | definição de função e fechamentos |
+| 56, 57, 58, 59, 60, 61, 63 | 4, 4, 4, 12, 8, 10, 4 | todas cobertas (A1–A4) |
 
-Das linhas com comando bash (25–28), 4 de 4 foram cobertas. O kcov conta 7 linhas instrumentadas (4 cobertas), mas as 3 que faltam são o texto do programa jq, não código bash. O kcov mede **linha**, não decisão nem MC/DC: as condições de D4, D8 e D9 estão nas linhas 28–30, e ele não as distingue. Antes do TDD o quadro era o mesmo, com outros números de linha: 23–26 cobertas (30, 62, 29, 23 hits) e 27–29 com 0.
+Das linhas com comando bash do M14 (25, 28–31), 5 de 5 foram cobertas; as 3 com 0 são o texto do programa jq, não código bash. Das linhas da `contest_end_all`, 7 de 7 foram cobertas. O kcov mede **linha**, não decisão nem MC/DC: as condições de D4, D8 e D9 estão dentro dos programas jq, e ele não as distingue. Antes do ciclo 2 o quadro do M14 era o mesmo, com outros números de linha (25–28 cobertas com 33, 68, 32, 26 hits, e 29–31 com 0), e a `contest_end_all` não era exercitada pela suíte. Antes do TDD: 23–26 cobertas (30, 62, 29, 23 hits) e 27–29 com 0.
 
-![Renderização via ImageMagick dos dados do cobertura.xml do kcov (linhas 23–31, depois do TDD); não é captura de tela.](evidencias/img/cobertura-kcov.png)
+![Renderização via ImageMagick dos dados do cobertura.xml do kcov (linhas 25–35 e 55–64, depois dos 2 ciclos de TDD); não é captura de tela.](evidencias/img/cobertura-kcov.png)
 
-*Renderização via ImageMagick dos dados do `cobertura.xml` do kcov (linhas 23–31, depois do TDD); não é captura de tela.*
+*Renderização via ImageMagick dos dados do `cobertura.xml` do kcov (linhas 25–35 e 55–64, depois dos 2 ciclos de TDD); não é captura de tela.*
 
 ## 6. Defeitos e hipóteses (XFAIL)
 
-> **Situação atual:** X1 e X2 foram **corrigidos no ciclo de TDD** de 2026-11-02 (seção 7) e hoje são casos obrigatórios que passam. Esta seção registra o defeito como foi encontrado: o "obtido" abaixo é o de **antes** do TDD, e as imagens `xfail-X1.png` e `xfail-X2.png` foram mantidas de propósito, porque mostram o "antes".
+> **Situação atual:** X1 e X2 foram **corrigidos no ciclo 1 de TDD** de 2026-11-02 (seção 7) e hoje são casos obrigatórios que passam. Esta seção registra o defeito como foi encontrado: o "obtido" abaixo é o de **antes** do TDD, e as imagens `xfail-X1.png` e `xfail-X2.png` foram mantidas de propósito, porque mostram o "antes".
 
 O oráculo é o contrato da seção 2. A paridade com o espelho do porteiro foi conferida **executando** as funções Python (`python3 -I Test_Eduardo/oraculo-porteiro.py`, saída em `evidencias/oraculo-porteiro-2026-11-01.txt`; a de 2026-11-02 inclui T1–T3):
 
@@ -297,7 +309,7 @@ Os dois defeitos só são alcançáveis com um `time-overrides.json` **editado f
            | $e) // empty' "$f" 2>/dev/null
 ```
 
-`if type == "array"` reproduz o `isinstance(data, list)` do porteiro (X1), e `objects` reproduz o `if not isinstance(ent, dict): continue` (X2). Antes do TDD, a correção foi validada numa **cópia descartável** da lib, fora do repo, junto com as correções do M15 (`| $e | floor` e `10#`): `RESULT: 28 passed, 0 failed, 0 xfail`, com X1 e X2 em XPASS. Em 2026-11-02, com autorização do Eduardo, ela entrou no código de produção desta branch pelo ciclo de TDD (seção 7). A função vizinha `contest_end_all` usa o mesmo `.[]?` sem `objects` e tem o mesmo defeito (fora do escopo do M14; ver "Próximos ciclos" na seção 7).
+`if type == "array"` reproduz o `isinstance(data, list)` do porteiro (X1), e `objects` reproduz o `if not isinstance(ent, dict): continue` (X2). Antes do TDD, a correção foi validada numa **cópia descartável** da lib, fora do repo, junto com as correções do M15 (`| $e | floor` e `10#`): `RESULT: 28 passed, 0 failed, 0 xfail`, com X1 e X2 em XPASS. Em 2026-11-02, com autorização do Eduardo, ela entrou no código de produção desta branch pelo ciclo de TDD (seção 7). A função vizinha `contest_end_all` usava o mesmo `.[]?` sem `objects` e tinha o mesmo defeito. Ela foi corrigida no ciclo 2 (seção 7), e hoje as duas funções usam o mesmo filtro `regras`.
 
 ![X2 — elemento string silencia a regra válida (antes do TDD)](evidencias/img/xfail-X2.png)
 
@@ -306,7 +318,20 @@ Os dois defeitos só são alcançáveis com um `time-overrides.json` **editado f
 - **`end` float, negativo ou exponencial.** O M14 só ecoa o número, como o contrato diz ("ecoa o `end`"). A quebra aparece no M15, que recebe esse texto (`1700000100.5`, `1.7000001E+9`). Por isso esses casos estão no relatório do M15.
 - **Regex não string (C17).** O porteiro levanta `TypeError` (não é `re.error`), cai no `except Exception` e declina, e o bash responde. O resultado final é o mesmo, então é caso que passa.
 
-## 7. Aplicação de TDD (ciclo 1: arquivo que não é lista e elemento que não é objeto)
+## 7. Aplicação de TDD (2 ciclos)
+
+Dois ciclos Red → Green → Refactor, cada fase com um commit próprio, com autorização do Eduardo para alterar `server/api/v1/lib/contest-gate.sh` nesta branch.
+
+| Ciclo | Fase | Commit | Resultado real |
+|---|---|---|---|
+| 1 (X1/X2, `time_override_end`) | Red | `0b09b88c` | `29 passed, 4 failed, 0 xfail`, exit 1 |
+| 1 | Green | `13dfd0e5` | `33 passed, 0 failed, 0 xfail` |
+| 1 | Refactor | `344fc223` | `33 passed, 0 failed, 0 xfail` |
+| 2 (`contest_end_all`) | Red | `b74e15f6` | `34 passed, 3 failed, 0 xfail`, exit 1 |
+| 2 | Green | `ae124130` | `37 passed, 0 failed, 0 xfail` |
+| 2 | Refactor | `32bba9be` | `37 passed, 0 failed, 0 xfail` |
+
+### Ciclo 1: arquivo que não é lista e elemento que não é objeto
 
 **O que foi desenvolvido:** a correção dos defeitos X1 e X2 (seção 6). Antes, o `time_override_end` aceitava um objeto no lugar da lista (X1), e um único elemento que não fosse objeto abortava o jq e **silenciava todas as regras** (X2). Escolhi esses defeitos por quatro motivos:
 - violam frases explícitas do contrato (*"Formato: [{regex, end, reason?}, …]"*, *"1ª que casa vence"*) e o comentário do writer (*"regra quebrada silenciaria as demais no gate"*);
@@ -314,7 +339,7 @@ Os dois defeitos só são alcançáveis com um `time-overrides.json` **editado f
 - há um oráculo independente e executável (o porteiro, `override_end`);
 - a correção cabe numa linha e deixa espaço para um Refactor real.
 
-O ciclo foi feito com autorização do Eduardo para alterar `server/api/v1/lib/contest-gate.sh` nesta branch. Evidências em `evidencias/tdd/`: a saída `.txt` de cada fase e o `.diff` do que mudou nela.
+Evidências em `evidencias/tdd/ciclo1-*`: a saída `.txt` de cada fase e o `.diff` do que mudou nela.
 
 | Fase | O que mudou | Resultado real | Evidência |
 |---|---|---|---|
@@ -322,7 +347,7 @@ O ciclo foi feito com autorização do Eduardo para alterar `server/api/v1/lib/c
 | **Green** | 1 linha em `contest-gate.sh`: `.[]?` virou `(if type == "array" then .[] else empty end) \| objects` | `33 passed, 0 failed, 0 xfail`, exit 0. 4 smokes do upstream com 0 falhas | `ciclo1-2-green.txt`, `ciclo1-2-green.diff`, `ciclo1-2-green-regressao.txt` |
 | **Refactor** | A regra virou o filtro jq com nome `def regras: arrays \| .[] \| objects;`, e o comentário da função explica por quê | `33 passed, 0 failed, 0 xfail`, exit 0. 4 smokes do upstream com 0 falhas; `jq-portability.sh` sem incompatibilidade | `ciclo1-3-refactor.txt`, `ciclo1-3-refactor.diff`, `ciclo1-3-refactor-regressao.txt` |
 
-### Evolução dos testes (Red)
+#### Evolução dos testes (Red)
 
 - **X1 e X2 mudaram de tipo** (`caso X` → `caso C`). O esperado **não mudou**: continua sendo o que o contrato e o porteiro dizem (vazio e `1700000100`). O que mudou é que a falha agora quebra o exit code.
 - **T1 (novo):** `[5, {regra válida}]`, esperado `1700000100`. O X2 usa um elemento string; T1 mostra que o defeito não é da string, e sim de **qualquer** elemento que não é objeto (no Red: rc5, vazio).
@@ -332,7 +357,7 @@ O ciclo foi feito com autorização do Eduardo para alterar `server/api/v1/lib/c
 
 ![TDD ciclo 1 — RED: X1, X2, T1 e T2 falham, 29 passed, 4 failed, 0 xfail, exit 1](evidencias/img/tdd-ciclo1-red.png)
 
-### Evolução da implementação
+#### Evolução da implementação
 
 **Green, a correção mínima.** Uma linha: só itera se a entrada for lista, e só olha os elementos que são objetos. É a correção sugerida na seção 6, aplicada sem mudança.
 
@@ -369,12 +394,12 @@ O ciclo foi feito com autorização do Eduardo para alterar `server/api/v1/lib/c
 
 ![TDD ciclo 1 — REFACTOR: 33 passed, 0 failed, 0 xfail, exit 0](evidencias/img/tdd-ciclo1-refactor.png)
 
-### Refatorações realizadas
+#### Refatorações realizadas
 
 1. **Saiu o `if … then … else empty end`.** O jq já tem o filtro `arrays`, que deixa passar só listas. `arrays | .[] | objects` diz a mesma coisa em três palavras, todas no mesmo idioma de filtros por tipo (`arrays`, `objects`).
 2. **A regra ganhou nome** (`def regras`). A linha do `first(…)` voltou a ler como antes ("a primeira regra que…"), e a validação do formato ficou separada da escolha da regra.
 3. **O comentário diz por que a regra existe:** paridade com o espelho do porteiro e o efeito do defeito antigo (silenciar as regras válidas). Sem isso, um leitor futuro poderia "simplificar" de volta para `.[]?`.
-4. **O que NÃO foi feito no Refactor:** aplicar o mesmo filtro na `contest_end_all` (linha 57), que usa o mesmo `.[]?`. Isso **muda o comportamento** dela: hoje, com `["x", {regra válida}]`, o jq dela aborta (sondagem real: rc5, saída vazia) e a prorrogação **não** estende o fim-para-todos. Mudar comportamento pede um ciclo novo, começando por um teste vermelho. Ficou como próximo ciclo.
+4. **O que NÃO foi feito no Refactor:** aplicar o mesmo filtro na `contest_end_all` (linha 57 na época), que usa o mesmo `.[]?`. Isso **muda o comportamento** dela: naquele momento, com `["x", {regra válida}]`, o jq dela aborta (sondagem real: rc5, saída vazia) e a prorrogação **não** estende o fim-para-todos. Mudar comportamento pede um ciclo novo, começando por um teste vermelho. Virou o ciclo 2 (abaixo).
 
 Regressão: os testes do upstream que exercitam essa lib foram rodados **sem alteração** depois do Green e depois do Refactor:
 - `smoke-time-overrides.sh` (rota `/submit` e countdown com prorrogação): 12 passed;
@@ -385,24 +410,101 @@ Regressão: os testes do upstream que exercitam essa lib foram rodados **sem alt
 
 ![TDD ciclo 1 — regressão: 4 smokes do upstream, 0 falhas, e o jq-portability](evidencias/img/tdd-ciclo1-regressao.png)
 
-### Dificuldades
+#### Dificuldades
 
 - **Um caso novo passou no Red.** O esperado era que todo caso novo nascesse vermelho, e o T3 nasceu verde. Em vez de descartá-lo, investiguei o motivo: ele passava porque o jq **abortava** (rc5), não porque o formato era recusado. Ficou como caso de proteção, com a explicação registrada, e o Red continua mostrando 4 vermelhos (X1, X2, T1, T2).
 - **O xtrace e o kcov não enxergam a correção.** As duas decisões novas (D8 `arrays`, D9 `objects`) ficam dentro da string do jq. A cobertura delas foi mostrada por entrada e saída (C01 × X1, C01 × X2), como já era feito para D4–D7.
 - **Escolher o mínimo do Green.** O primeiro impulso era já escrever o `def regras` e mexer também na `contest_end_all`. Segurar o nome para o Refactor, e a função irmã para um ciclo próprio, deixou cada fase com um diff pequeno e explicável.
 - **Portabilidade do jq.** O jq da imagem de produção é o 1.7, e o da máquina de teste é o 1.8. `arrays`, `objects` e `def` existem nas duas versões, e o `jq-portability.sh` passou, mas ele rodou com o jq 1.8 daqui (seção 8).
 
-### Benefícios observados
+#### Benefícios observados
 
 - **Teste antes da correção = prova de que o teste detecta o defeito.** Os 4 vermelhos do Red mostram que, se a correção for revertida, a suíte avisa.
 - **T1 e T2 transformaram uma frase em teste.** A seção 6 dizia que "string, número e lista disparam" o erro, mas só a string tinha caso. Escrever o teste antes obrigou a cobrir os três.
 - **T3 mostrou um "verde falso".** Sem pensar no teste primeiro, a regra sem colchetes teria parecido já tratada. O TDD revelou que o acerto era por acidente, e o caso agora garante o motivo certo.
 - **Refatorar sem medo.** O filtro mudou de forma (`if/else` → `arrays`), e o mesmo `33 passed` antes e depois, mais a regressão do upstream, mostram que o comportamento ficou igual.
-- **A refatoração revelou o próximo defeito.** Ao procurar onde reutilizar o filtro apareceu a `contest_end_all` com o mesmo problema, já confirmado por execução.
+- **A refatoração revelou o próximo defeito.** Ao procurar onde reutilizar o filtro apareceu a `contest_end_all` com o mesmo problema, já confirmado por execução. Ele foi corrigido no ciclo 2.
+
+### Ciclo 2: a `contest_end_all` também só lê os objetos de uma lista
+
+**O que foi desenvolvido:** a mesma proteção do ciclo 1, na outra função que lê o `time-overrides.json`. A `contest_end_all` calcula o fim **para todos** (o maior `end` válido), que é o gate da cerimônia de revelação por sede. Ela usava o mesmo `.[]?` que o M14 tinha antes do ciclo 1. Com `["x", {regra válida}]`, o jq dela abortava e a prorrogação **não** estendia o fim para todos: a revelação poderia abrir com uma sede ainda competindo. Com um objeto no lugar da lista, ela estendia, e o porteiro (`end_all`) não. O Eduardo escolheu este alvo para o 2º ciclo, entre as opções apresentadas. Ele não é método do roteiro do M14, mas lê o mesmo arquivo, com o mesmo contrato de formato.
+
+Evidências em `evidencias/tdd/ciclo2-*`.
+
+| Fase | O que mudou | Resultado real | Evidência |
+|---|---|---|---|
+| **Red** | Só o teste. O script ganhou um runner para a `contest_end_all` (variável `FN`) e os casos A1–A4. O oráculo do porteiro ganhou A1–A4 (função `end_all`). | `34 passed, 3 failed, 0 xfail`, exit 1 | `ciclo2-1-red.txt`, `ciclo2-1-red.diff` |
+| **Green** | 1 linha na `contest_end_all`: `[.[]? \| …]` virou `[arrays \| .[] \| objects \| …]` | `37 passed, 0 failed, 0 xfail`, exit 0. 4 smokes do upstream com 0 falhas | `ciclo2-2-green.txt`, `ciclo2-2-green.diff`, `ciclo2-2-green-regressao.txt` |
+| **Refactor** | O `def regras` virou a variável `TOV_RULES_JQ`, compartilhada pelos dois programas jq | `37 passed, 0 failed, 0 xfail`, exit 0. 4 smokes do upstream com 0 falhas; `jq-portability.sh` sem incompatibilidade | `ciclo2-3-refactor.txt`, `ciclo2-3-refactor.diff`, `ciclo2-3-refactor-regressao.txt` |
+
+#### Evolução dos testes (Red)
+
+- **Runner novo, sem mudar os casos antigos.** A função `run` passou a chamar `"${FN:-time_override_end}"`. Os 33 casos do M14 rodam como antes; a seção nova põe `FN=contest_end_all` e depois `unset FN`.
+- **A1 (novo, base):** `[regra válida]` com `end 1700000100` e `CONTEST_END=1700000000`. Esperado `1700000100`. Já passava no Red; é o caso de referência para os pares.
+- **A2 (novo):** `["x", regra válida]`. Esperado `1700000100` (no Red: `1700000000`, o jq abortava).
+- **A3 (novo):** `{"a": regra válida}` (objeto). Esperado `1700000000`, o fim do conf (no Red: `1700000100`, o `.[]?` iterava os valores do objeto).
+- **A4 (novo):** `[5, regra válida]`. Esperado `1700000100` (no Red: `1700000000`).
+- **Oráculo:** antes do Red, executei o `end_all` do porteiro com A1–A4. Ele deu `1700000100`, `1700000100`, `1700000000` e `1700000100`, os mesmos esperados do teste (`evidencias/oraculo-porteiro-2026-11-02.txt`).
+
+![TDD ciclo 2 — RED: A2, A3 e A4 falham, 34 passed, 3 failed, 0 xfail, exit 1](evidencias/img/tdd-ciclo2-red.png)
+
+#### Evolução da implementação
+
+**Green.** Uma linha, com o mesmo filtro do Refactor do ciclo 1, escrito por extenso:
+
+```diff
+@@ contest_end_all
+-    mx="$(jq -r '[.[]? | select((.regex//"") != "" and (.end|type=="number")) | .end] | max // empty' "$f" 2>/dev/null)"
++    mx="$(jq -r '[arrays | .[] | objects | select((.regex//"") != "" and (.end|type=="number")) | .end] | max // empty' "$f" 2>/dev/null)"
+```
+
+![TDD ciclo 2 — diff do GREEN](evidencias/img/tdd-ciclo2-green-diff.png)
+
+![TDD ciclo 2 — GREEN: 37 passed, 0 failed, 0 xfail, exit 0](evidencias/img/tdd-ciclo2-green.png)
+
+**Refactor.** O filtro passou a ter **uma** definição para os dois leitores do arquivo:
+
+```diff
++TOV_RULES_JQ='def regras: arrays | .[] | objects; '
+@@ time_override_end
+-  jq -r --arg l "$2" 'def regras: arrays | .[] | objects;
++  jq -r --arg l "$2" "$TOV_RULES_JQ"'
+     first(regras | (.regex // "") as $rr | (.end) as $e
+@@ contest_end_all
+-    mx="$(jq -r '[arrays | .[] | objects | select(…) | .end] | max // empty' …)"
++    mx="$(jq -r "$TOV_RULES_JQ"'[regras | select(…) | .end] | max // empty' …)"
+```
+
+(Diff acumulado do ciclo, em `ciclo2-3-refactor.diff`.)
+
+![TDD ciclo 2 — diff do REFACTOR (acumulado do ciclo)](evidencias/img/tdd-ciclo2-refactor-diff.png)
+
+![TDD ciclo 2 — REFACTOR: 37 passed, 0 failed, 0 xfail, exit 0](evidencias/img/tdd-ciclo2-refactor.png)
+
+#### Refatorações realizadas
+
+1. **Fonte única do formato.** O Green do ciclo 2 deixou a mesma regra escrita duas vezes (`def regras` no M14 e `arrays | .[] | objects` na `contest_end_all`). Agora as duas funções começam o programa jq por `"$TOV_RULES_JQ"`, e mudar o formato aceito exige mudar um lugar só.
+2. **Mesmo padrão do upstream.** O `cdmoj` já monta programas jq por concatenação com variável de shell (por exemplo, `"$VERDICT_CANON_JQ"'…'`), e o `jq-portability.sh` documenta esse caso.
+3. **O comentário diz quem usa o filtro** ("FONTE ÚNICA do formato p/ os dois leitores do arquivo") e qual espelho do porteiro ele reproduz (`override_end`/`end_all`).
+4. **O que NÃO foi feito:** tratar na `contest_end_all` o octal do `CONTEST_END` e o `end` float (achados do M15). Isso muda comportamento e ficaria para outro ciclo.
+
+![TDD ciclo 2 — regressão: 4 smokes do upstream, 0 falhas, e o jq-portability](evidencias/img/tdd-ciclo2-regressao.png)
+
+#### Dificuldades
+
+- **Testar uma função nova no mesmo script.** O runner foi generalizado com uma variável (`FN`) para não duplicar a fixture nem mudar os casos antigos. Os 33 casos do M14 continuaram com o mesmo resultado em todas as fases.
+- **A escolha do alvo.** Os dois defeitos do M14 já estavam corrigidos. A outra opção para o 2º ciclo era fazer o M14 devolver o `end` inteiro (`floor`), mas o contrato diz que ele *ecoa* o `end`, e o relatório já tinha decidido que float não é defeito do M14. O Eduardo escolheu a `contest_end_all`.
+- **Ferramenta parcial.** Com o programa concatenado, o `jq-portability.sh` não compila os dois programas inteiros (seção 8). A suíte, que roda as duas funções, fecha essa lacuna.
+
+#### Benefícios observados
+
+- **O ciclo 1 preparou o ciclo 2.** O filtro com nome do Refactor do ciclo 1 foi o que mostrou onde mais a regra faltava, e o Green do ciclo 2 já sabia a correção.
+- **O teste escrito antes pegou os dois lados do defeito:** A2/A4 (o fim para todos não estendia) e A3 (estendia quando não devia).
+- **Refatorar sem medo.** A troca para a variável compartilhada mudou os dois programas jq, e os mesmos `37 passed`, mais a regressão do upstream, mostram que o comportamento ficou igual.
 
 ### Próximos ciclos possíveis (não feitos)
 
-- **`contest_end_all`** (mesmo arquivo, fora do escopo do M14): Red com `["x", {regra válida com end maior que o fim}]` (esperado: o fim estendido; obtido hoje: o fim sem extensão, porque o jq aborta). O Green seria usar o mesmo `def regras` no programa jq da linha 57.
+- **`contest_end_all` com octal e float:** os mesmos defeitos que o M15 corrigiu no `contest_end_effective` (`CONTEST_END=0100`, `end` float ou exponencial).
 - **Paridade com o jq 1.7:** rodar a suíte e o `jq-portability.sh` com o jq da imagem de produção (`make check-jq`).
 
 ## 8. Lacunas e limitações
@@ -416,13 +518,16 @@ Regressão: os testes do upstream que exercitam essa lib foram rodados **sem alt
 - **Cobertura.** O kcov mede só linha. Não há medida automática de decisão nem de MC/DC.
 - **TDD e versão do jq.** O ciclo de TDD e o `jq-portability.sh` rodaram com o jq 1.8.2 desta máquina; o jq da imagem de produção é o 1.7 e não foi exercitado.
 - **Regressão do TDD.** Foram rodados os 4 smokes do upstream que exercitam esta lib e o `jq-portability.sh`, não a suíte inteira do `server/test/` (que tem testes que não são offline nem rápidos).
-- **`contest_end_all`.** Tem o mesmo defeito do X2 (sondado por execução), mas fica fora do escopo do M14 e não tem caso na suíte.
+- **`contest_end_all`.** Não é método do M14. Entrou no ciclo 2 do TDD, e os casos A1–A4 cobrem só as partições do **arquivo** (lista, objeto, elemento ruim). As outras partições dela (módulo desligado, `CONTEST_END` zero ou ausente, regra com regex que não casa ninguém) não têm caso aqui. Ela também lê `CONTEST_END` com zero à esquerda em octal (achado do M15) e descarta `end` float; esses defeitos não foram tratados nesta branch.
+- **`jq-portability.sh` e programa concatenado.** Desde o Refactor do ciclo 2, os dois programas jq começam por `"$TOV_RULES_JQ"`. O `jq-portability.sh` do upstream só extrai a parte entre aspas simples, então compila o resto sem o `def regras` e trata o "não definida" como falso positivo (é o comportamento documentado no próprio script). A compilação completa dos dois programas foi verificada pela suíte, que roda os dois.
+- **Branches separadas.** O ciclo 2 do M15 (branch `test/eduardo-m15`) também mexe em `contest-gate.sh`. Esta branch não tem as mudanças de lá, e a do M15 não tem as daqui. Juntar as duas no repositório da equipe vai exigir resolver o merge desse arquivo.
 
 ## 9. Uso de Inteligência Artificial
 
 - **Ferramentas:** Claude (chat) e Claude Code (agente no terminal).
 - **Análise e planejamento:** a análise do código, as partições, os pares MC/DC e as hipóteses foram feitos com apoio de IA e registrados no planejamento (`planejamento-m14.txt`).
 - **Implementação e evidências (Claude Code):** a escrita e a execução do `time-override-end.sh` e do `oraculo-porteiro.py`. A geração das evidências: saída, traces, imagens e cobertura com o kcov. A redação deste relatório, incluindo a correção sugerida em diff. O X2 foi encontrado nessa etapa, ao sondar o filtro jq com um elemento que não é objeto.
-- **Ciclo de TDD (Claude Code, 2026-11-02):** a escrita dos casos do Red (T1–T3), a aplicação da correção no Green, o Refactor, a regressão e a regeração das evidências, sob pedido e autorização do Eduardo para alterar `contest-gate.sh` nesta branch.
+- **Ciclo 2 de TDD (Claude Code, 2026-11-02):** o Eduardo escolheu, entre opções apresentadas pela IA, corrigir a `contest_end_all` no 2º ciclo. A IA escreveu os casos A1–A4, a correção do Green, o Refactor (filtro compartilhado), as evidências, e rodou a regressão.
+- **Ciclo 1 de TDD (Claude Code, 2026-11-02):** a escrita dos casos do Red (T1–T3), a aplicação da correção no Green, o Refactor, a regressão e a regeração das evidências, sob pedido e autorização do Eduardo para alterar `contest-gate.sh` nesta branch.
 - **Revisão e decisões (Eduardo):** a revisão do material e as decisões sobre os oráculos. Por exemplo, o arquivo-objeto virou XFAIL (X1) por decisão do Eduardo.
 - **Autorização:** a professora da disciplina autorizou o uso de IA neste trabalho.

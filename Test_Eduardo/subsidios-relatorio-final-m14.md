@@ -28,11 +28,11 @@ O M14 fica em `server/api/v1/lib/contest-gate.sh`; o único chamador é o M15 (`
 - **Caixa-branca:** sete decisões (D1–D7), quatro delas **dentro do jq**. **MC/DC** com pares para A, B, D2, D3, c1, c2 e c3 (seção 4). Curto-circuito do `&&` do bash e do `and` do jq documentados.
 - **Evidência de caminho:** xtrace por caso (`--trace`) para as decisões em bash; para as do jq, o par se apoia em entrada e saída (a 1ª regra é pulada e a 2ª vence).
 - **Cobertura de linhas:** kcov (seção 5).
-- **TDD:** os defeitos ficaram registrados como XFAIL e depois foram corrigidos num ciclo completo Red/Green/Refactor nesta branch (seção 7 do relatório). O M15 tem outro ciclo, na branch `test/eduardo-m15`.
+- **TDD:** 2 ciclos Red/Green/Refactor nesta branch (seção 7 do relatório): o 1º corrigiu os defeitos X1/X2 do M14; o 2º levou a mesma proteção à `contest_end_all`, que lê o mesmo arquivo.
 
 ## Testes desenvolvidos
 
-- Script `time-override-end.sh`, no estilo dos testes do upstream: 33 casos — `33 passed, 0 failed, 0 xfail` depois do TDD (antes: 30 casos, `28 passed, 0 failed, 2 xfail`).
+- Script `time-override-end.sh`, no estilo dos testes do upstream: 37 casos — `37 passed, 0 failed, 0 xfail` depois dos 2 ciclos de TDD (depois do ciclo 1: 33 casos; antes do TDD: 30 casos, `28 passed, 0 failed, 2 xfail`).
 - **Defeitos encontrados** (seção 6), os dois só alcançáveis com o arquivo editado fora da API e os dois divergências com o porteiro:
   - X1: um **objeto** no lugar da lista é aceito (o `.[]?` do jq itera os valores do objeto); o porteiro ignora;
   - X2: **um único elemento que não é objeto** (`"x"`) derruba o jq e **silencia todas as regras**, inclusive as válidas. Uma sede inteira perderia a prorrogação; o porteiro pula o elemento.
@@ -42,13 +42,14 @@ O M14 fica em `server/api/v1/lib/contest-gate.sh`; o único chamador é o M15 (`
 
 | Métrica | Valor medido | Como |
 |---|---|---|
-| Linhas com comando bash (25–28, depois do TDD) | 4 de 4 cobertas | `cobertura.xml` do kcov, regerado em 2026-11-02 |
-| Linhas que o kcov instrumentou | 7, das quais 4 cobertas | as 3 restantes (29–31) são o **texto do programa jq**, não código bash — artefato da ferramenta |
+| Linhas com comando bash do M14 + filtro `regras` (25, 28–31, depois dos 2 ciclos) | 5 de 5 cobertas | `cobertura.xml` do kcov, regerado em 2026-11-02 |
+| Linhas que o kcov instrumentou no M14 | 8, das quais 5 cobertas | as 3 restantes (32–34) são o **texto do programa jq**, não código bash — artefato da ferramenta |
+| Linhas da `contest_end_all` (ciclo 2) | 7 de 7 cobertas (56–61, 63) | idem |
 | Decisões (V e F) | D1–D7 com os dois lados exercitados | tabela da seção 4 |
 | MC/DC | 7 condições com par independente (A, B, D2, D3, c1, c2, c3) | pares da seção 4 + imagens `mcdc-*.png` |
-| Decisões criadas no TDD | D8 (`arrays`) e D9 (`objects`) com os dois lados exercitados | C01 × X1/T3 e C01 × X2/T1/T2 (entrada/saída) |
+| Decisões criadas no TDD | D8 (`arrays`) e D9 (`objects`) com os dois lados exercitados, nas duas funções | C01 × X1/T3 e C01 × X2/T1/T2; na `contest_end_all`, A1 × A3 e A1 × A2/A4 (entrada/saída) |
 
-Ressalva: o número cru do kcov (4 de 7) **subestima** a cobertura real e não enxerga nenhuma condição do jq. Decisão e MC/DC vêm dos pares, não da ferramenta.
+Ressalva: o número cru do kcov no M14 (5 de 8) **subestima** a cobertura real e não enxerga nenhuma condição do jq. Decisão e MC/DC vêm dos pares, não da ferramenta.
 
 ## Descrição do processo de TDD
 
@@ -60,7 +61,17 @@ Ciclo completo nesta branch (seção 7 do relatório; evidências em `evidencias
 | Green | 1 linha: `(if type == "array" then .[] else empty end) \| objects` | `33 passed, 0 failed, 0 xfail` |
 | Refactor | filtro com nome `def regras: arrays \| .[] \| objects;` + comentário | `33 passed, 0 failed, 0 xfail` |
 
-Regressão sem falhas nos testes do upstream (não alterados): smoke-time-overrides 12, smoke-porteiro 54, smoke-modules-off-rules 14, smoke-contest-rounds 92, e o `jq-portability.sh` sem incompatibilidade. Ponto de destaque: o T3 passou no Red **por acidente** (o jq abortava com rc5 e a saída vazia "acertava"); ficou como caso de proteção do motivo certo. Próximo ciclo possível: a `contest_end_all`, com o mesmo `.[]?` e o mesmo defeito (sondado).
+Regressão sem falhas nos testes do upstream (não alterados): smoke-time-overrides 12, smoke-porteiro 54, smoke-modules-off-rules 14, smoke-contest-rounds 92, e o `jq-portability.sh` sem incompatibilidade. Ponto de destaque: o T3 passou no Red **por acidente** (o jq abortava com rc5 e a saída vazia "acertava"); ficou como caso de proteção do motivo certo.
+
+Ciclo 2, na `contest_end_all` (função vizinha que lê o mesmo `time-overrides.json`; alvo escolhido pelo Eduardo):
+
+| Fase | O que mudou | Resultado |
+|---|---|---|
+| Red | runner generalizado (`FN`) + A1 (base), A2 (elemento string), A3 (objeto), A4 (elemento número) | `34 passed, 3 failed, 0 xfail`, exit 1 |
+| Green | 1 linha: `[.[]? \| …]` → `[arrays \| .[] \| objects \| …]` | `37 passed, 0 failed, 0 xfail` |
+| Refactor | o filtro virou a variável `TOV_RULES_JQ`, fonte única para os dois programas jq | `37 passed, 0 failed, 0 xfail` |
+
+Regressão sem falhas de novo (os mesmos 4 smokes e o `jq-portability.sh`). O ciclo 2 nasceu do Refactor do ciclo 1: dar nome ao filtro mostrou onde mais ele faltava.
 
 ## Análise crítica (contribuição do M14)
 
@@ -96,4 +107,4 @@ Regressão sem falhas nos testes do upstream (não alterados): smoke-time-overri
 
 ## Conclusão (contribuição)
 
-O M14 foi testado com 30 casos (28 obrigatórios e 2 hipóteses de defeito), com sete decisões e sete pares de MC/DC documentados e paridade com o porteiro executada. Os dois defeitos encontrados faziam o bash divergir do porteiro com um arquivo malformado; o mais grave (X2) silenciava a prorrogação de uma sede inteira por causa de uma única entrada ruim. Os dois foram corrigidos num ciclo de TDD (Red → Green → Refactor), que acrescentou três casos (T1–T3): hoje são 33 casos, todos obrigatórios e passando, sem regressão nos testes do upstream.
+O M14 foi testado com 30 casos (28 obrigatórios e 2 hipóteses de defeito), com sete decisões e sete pares de MC/DC documentados e paridade com o porteiro executada. Os dois defeitos encontrados faziam o bash divergir do porteiro com um arquivo malformado; o mais grave (X2) silenciava a prorrogação de uma sede inteira por causa de uma única entrada ruim. Os dois foram corrigidos num 1º ciclo de TDD (Red → Green → Refactor), que acrescentou três casos (T1–T3). Um 2º ciclo levou a mesma proteção à `contest_end_all` (A1–A4) e deixou o formato do arquivo numa definição só. Hoje são 37 casos, todos obrigatórios e passando, sem regressão nos testes do upstream.
