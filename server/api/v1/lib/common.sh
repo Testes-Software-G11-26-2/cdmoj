@@ -262,10 +262,21 @@ safe_src_filename() {
   if [[ "$n" == *.* ]]; then ext="${n##*.}"; stem="${n%.*}"; else stem="$n"; fi
   while [[ "$stem" =~ ^(.+)\([0-9]+\)$ ]]; do stem="${BASH_REMATCH[1]}"; done
   local bad='()[]{}<>|&;$`"'"'"'\*?!#~^%=:,/'
-  for ((i = 0; i < ${#stem}; i++)); do c="${stem:i:1}"; [[ "$bad" == *"$c"* ]] || o+="$c"; done
-  stem="$o"; o=""
-  for ((i = 0; i < ${#ext}; i++)); do c="${ext:i:1}"; [[ "$bad" == *"$c"* ]] || o+="$c"; done
-  ext="$o"
+
+#retirar 2 for e por somente 1 para limpar caracteres e espaços vazios
+limpar_texto() {
+  local palavra="$1"
+  local texto_limpo=""
+  local c i
+  local bad='()[]{}<>|&;$`"'"'"'\*?!#~^%=:,/'
+  for ((i = 0; i < ${#palavra}; i++)); do 
+    c="${palavra:i:1}"
+    [[ "$bad" == *"$c"* ]] || texto_limpo+="$c"
+  done
+  echo "$texto_limpo"
+}
+stem=$(limpar_texto "$stem")
+ext=$(limpar_texto "$ext")
   [[ -n "$stem" ]] || stem="solution"
   if [[ -n "$ext" ]]; then printf '%s.%s' "$stem" "$ext"; else printf '%s' "$stem"; fi
 }

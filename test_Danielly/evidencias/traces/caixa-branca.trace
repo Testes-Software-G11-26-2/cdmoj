@@ -1,0 +1,391 @@
++ source server/api/v1/lib/common.sh
+++ set -o noglob
+++ [[ server/api/v1/lib/common.sh == /* ]]
+++++ dirname server/api/v1/lib/common.sh
++++ cd server/api/v1/lib
++++ pwd
+++ _LIBDIR=/c/Users/reisd/Engenharia-Unb/fga/TS/MOJ/cdmoj/server/api/v1/lib
+++ : /c/Users/reisd/Engenharia-Unb/fga/TS/MOJ/cdmoj/server/api/v1/lib/../../../etc/common.conf
+++ [[ -f /c/Users/reisd/Engenharia-Unb/fga/TS/MOJ/cdmoj/server/api/v1/lib/../../../etc/common.conf ]]
+++ source /c/Users/reisd/Engenharia-Unb/fga/TS/MOJ/cdmoj/server/api/v1/lib/../../../etc/common.conf
++++ : /home/ribas/moj/contests
++++ : /home/ribas/moj/run
++++ : /home/ribas/moj/run/sessions
++++ : /home/ribas/moj/run/spool/submissions
++++ : /home/ribas/moj/run/spool/submissions-done
++++ : /home/ribas/moj/cdmoj/server/var/news
++++ : /api/v1
++++ : icpc
++++ : 2
++++ : 10
++++ : mojinho_bot
++++ : /home/ribas/moj/run/secrets/bot.token
++++ : 1
++++ : https://moj.naquadah.com.br
++++ : 1
++++ : 30
++++ : https://animeitor.naquadah.com.br
++++ : /home/ribas/moj/run/secrets/animeitor.cred
++++ : 86400
++++ : 21600
++++ : 300
++++ : /home/ribas/moj/moj-problems
++++ : /home/ribas/moj/mojtools
++++ : 30
+++ : /home/ribas/moj/contests
+++ : /c/Users/reisd/Engenharia-Unb/fga/TS/MOJ/cdmoj/mojinho-bot/palavras-para-senha
+++ : /home/ribas/moj/run/sessions
+++ : /home/ribas/moj/run/spool/submissions
+++ : /home/ribas/moj/cdmoj/server/var/news
+++ : /c/Users/reisd/Engenharia-Unb/fga/TS/MOJ/cdmoj/server/api/v1/lib/../../../score
+++ : icpc
+++ export CONTESTSDIR SCOREDIR
+++ : America/Sao_Paulo
+++ export TZ=America/Sao_Paulo
+++ TZ=America/Sao_Paulo
+++ : /usr/share/zoneinfo
+++ CONTEST_LOCALES=(pt en es)
+++ : /home/ribas/moj/run
+++ : /home/ribas/moj/run/judged.alive
+++ : 120
+++ : server/daemons/judged.sh
+++ NAME_COLON=∶
+++ NAME_CLEAN_JQ='gsub(":"; "∶") | gsub("[\t\n\r]"; " ") | gsub("^ +| +$"; "")'
+++ safe_src_filename 'teste .py'
+++ local 'n=teste .py' stem ext= o= c i
+++ n=teste.py
+++ n=teste.py
+++ [[ teste.py == *.* ]]
+++ ext=py
+++ stem=teste
+++ [[ teste =~ ^(.+)\([0-9]+\)$ ]]
+++ local 'bad=()[]{}<>|&;$`"'\''\*?!#~^%=:,/'
+++ (( i = 0 ))
+++ (( i < 5 ))
+++ c=t
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\t* ]]
+++ o+=t
+++ (( i++ ))
+++ (( i < 5 ))
+++ c=e
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\e* ]]
+++ o+=e
+++ (( i++ ))
+++ (( i < 5 ))
+++ c=s
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\s* ]]
+++ o+=s
+++ (( i++ ))
+++ (( i < 5 ))
+++ c=t
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\t* ]]
+++ o+=t
+++ (( i++ ))
+++ (( i < 5 ))
+++ c=e
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\e* ]]
+++ o+=e
+++ (( i++ ))
+++ (( i < 5 ))
+++ stem=teste
+++ o=
+++ (( i = 0 ))
+++ (( i < 2 ))
+++ c=p
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\p* ]]
+++ o+=p
+++ (( i++ ))
+++ (( i < 2 ))
+++ c=y
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\y* ]]
+++ o+=y
+++ (( i++ ))
+++ (( i < 2 ))
+++ ext=py
+++ [[ -n teste ]]
+++ [[ -n py ]]
+++ printf %s.%s teste py
++ resultado=teste.py
+++ safe_src_filename 'codigo!.c'
+++ local 'n=codigo!.c' stem ext= o= c i
+++ n='codigo!.c'
+++ n='codigo!.c'
+++ [[ codigo!.c == *.* ]]
+++ ext=c
+++ stem='codigo!'
+++ [[ codigo! =~ ^(.+)\([0-9]+\)$ ]]
+++ local 'bad=()[]{}<>|&;$`"'\''\*?!#~^%=:,/'
+++ (( i = 0 ))
+++ (( i < 7 ))
+++ c=c
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\c* ]]
+++ o+=c
+++ (( i++ ))
+++ (( i < 7 ))
+++ c=o
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\o* ]]
+++ o+=o
+++ (( i++ ))
+++ (( i < 7 ))
+++ c=d
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\d* ]]
+++ o+=d
+++ (( i++ ))
+++ (( i < 7 ))
+++ c=i
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\i* ]]
+++ o+=i
+++ (( i++ ))
+++ (( i < 7 ))
+++ c=g
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\g* ]]
+++ o+=g
+++ (( i++ ))
+++ (( i < 7 ))
+++ c=o
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\o* ]]
+++ o+=o
+++ (( i++ ))
+++ (( i < 7 ))
+++ c='!'
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\!* ]]
+++ (( i++ ))
+++ (( i < 7 ))
+++ stem=codigo
+++ o=
+++ (( i = 0 ))
+++ (( i < 1 ))
+++ c=c
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\c* ]]
+++ o+=c
+++ (( i++ ))
+++ (( i < 1 ))
+++ ext=c
+++ [[ -n codigo ]]
+++ [[ -n c ]]
+++ printf %s.%s codigo c
++ res=codigo.c
+++ safe_src_filename 'java?.py'
+++ local 'n=java?.py' stem ext= o= c i
+++ n='java?.py'
+++ n='java?.py'
+++ [[ java?.py == *.* ]]
+++ ext=py
+++ stem='java?'
+++ [[ java? =~ ^(.+)\([0-9]+\)$ ]]
+++ local 'bad=()[]{}<>|&;$`"'\''\*?!#~^%=:,/'
+++ (( i = 0 ))
+++ (( i < 5 ))
+++ c=j
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\j* ]]
+++ o+=j
+++ (( i++ ))
+++ (( i < 5 ))
+++ c=a
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\a* ]]
+++ o+=a
+++ (( i++ ))
+++ (( i < 5 ))
+++ c=v
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\v* ]]
+++ o+=v
+++ (( i++ ))
+++ (( i < 5 ))
+++ c=a
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\a* ]]
+++ o+=a
+++ (( i++ ))
+++ (( i < 5 ))
+++ c='?'
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\?* ]]
+++ (( i++ ))
+++ (( i < 5 ))
+++ stem=java
+++ o=
+++ (( i = 0 ))
+++ (( i < 2 ))
+++ c=p
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\p* ]]
+++ o+=p
+++ (( i++ ))
+++ (( i < 2 ))
+++ c=y
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\y* ]]
+++ o+=y
+++ (( i++ ))
+++ (( i < 2 ))
+++ ext=py
+++ [[ -n java ]]
+++ [[ -n py ]]
+++ printf %s.%s java py
++ res3=java.py
+++ safe_src_filename 'nome(1).java'
+++ local 'n=nome(1).java' stem ext= o= c i
+++ n='nome(1).java'
+++ n='nome(1).java'
+++ [[ nome(1).java == *.* ]]
+++ ext=java
+++ stem='nome(1)'
+++ [[ nome(1) =~ ^(.+)\([0-9]+\)$ ]]
+++ stem=nome
+++ [[ nome =~ ^(.+)\([0-9]+\)$ ]]
+++ local 'bad=()[]{}<>|&;$`"'\''\*?!#~^%=:,/'
+++ (( i = 0 ))
+++ (( i < 4 ))
+++ c=n
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\n* ]]
+++ o+=n
+++ (( i++ ))
+++ (( i < 4 ))
+++ c=o
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\o* ]]
+++ o+=o
+++ (( i++ ))
+++ (( i < 4 ))
+++ c=m
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\m* ]]
+++ o+=m
+++ (( i++ ))
+++ (( i < 4 ))
+++ c=e
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\e* ]]
+++ o+=e
+++ (( i++ ))
+++ (( i < 4 ))
+++ stem=nome
+++ o=
+++ (( i = 0 ))
+++ (( i < 4 ))
+++ c=j
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\j* ]]
+++ o+=j
+++ (( i++ ))
+++ (( i < 4 ))
+++ c=a
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\a* ]]
+++ o+=a
+++ (( i++ ))
+++ (( i < 4 ))
+++ c=v
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\v* ]]
+++ o+=v
+++ (( i++ ))
+++ (( i < 4 ))
+++ c=a
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\a* ]]
+++ o+=a
+++ (( i++ ))
+++ (( i < 4 ))
+++ ext=java
+++ [[ -n nome ]]
+++ [[ -n java ]]
+++ printf %s.%s nome java
++ res4=nome.java
+++ safe_src_filename 'qualquertexto!py'
+++ local 'n=qualquertexto!py' stem ext= o= c i
+++ n='qualquertexto!py'
+++ n='qualquertexto!py'
+++ [[ qualquertexto!py == *.* ]]
+++ stem='qualquertexto!py'
+++ [[ qualquertexto!py =~ ^(.+)\([0-9]+\)$ ]]
+++ local 'bad=()[]{}<>|&;$`"'\''\*?!#~^%=:,/'
+++ (( i = 0 ))
+++ (( i < 16 ))
+++ c=q
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\q* ]]
+++ o+=q
+++ (( i++ ))
+++ (( i < 16 ))
+++ c=u
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\u* ]]
+++ o+=u
+++ (( i++ ))
+++ (( i < 16 ))
+++ c=a
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\a* ]]
+++ o+=a
+++ (( i++ ))
+++ (( i < 16 ))
+++ c=l
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\l* ]]
+++ o+=l
+++ (( i++ ))
+++ (( i < 16 ))
+++ c=q
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\q* ]]
+++ o+=q
+++ (( i++ ))
+++ (( i < 16 ))
+++ c=u
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\u* ]]
+++ o+=u
+++ (( i++ ))
+++ (( i < 16 ))
+++ c=e
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\e* ]]
+++ o+=e
+++ (( i++ ))
+++ (( i < 16 ))
+++ c=r
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\r* ]]
+++ o+=r
+++ (( i++ ))
+++ (( i < 16 ))
+++ c=t
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\t* ]]
+++ o+=t
+++ (( i++ ))
+++ (( i < 16 ))
+++ c=e
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\e* ]]
+++ o+=e
+++ (( i++ ))
+++ (( i < 16 ))
+++ c=x
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\x* ]]
+++ o+=x
+++ (( i++ ))
+++ (( i < 16 ))
+++ c=t
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\t* ]]
+++ o+=t
+++ (( i++ ))
+++ (( i < 16 ))
+++ c=o
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\o* ]]
+++ o+=o
+++ (( i++ ))
+++ (( i < 16 ))
+++ c='!'
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\!* ]]
+++ (( i++ ))
+++ (( i < 16 ))
+++ c=p
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\p* ]]
+++ o+=p
+++ (( i++ ))
+++ (( i < 16 ))
+++ c=y
+++ [[ ()[]{}<>|&;$`"'\*?!#~^%=:,/ == *\y* ]]
+++ o+=y
+++ (( i++ ))
+++ (( i < 16 ))
+++ stem=qualquertextopy
+++ o=
+++ (( i = 0 ))
+++ (( i < 0 ))
+++ ext=
+++ [[ -n qualquertextopy ]]
+++ [[ -n '' ]]
+++ printf %s qualquertextopy
++ res5=qualquertextopy
++ echo 'Teste 1 (Com espaço): teste.py'
+Teste 1 (Com espaço): teste.py
++ echo 'Teste 2 (Carater especial !): codigo.c'
+Teste 2 (Carater especial !): codigo.c
++ echo 'Teste 3 (Carater especial ?): java.py'
+Teste 3 (Carater especial ?): java.py
++ echo 'Teste 4 (repetição de download): nome.java'
+Teste 4 (repetição de download): nome.java
++ echo 'teste 5 (entrar no else): qualquertextopy'
+teste 5 (entrar no else): qualquertextopy
