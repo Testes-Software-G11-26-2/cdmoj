@@ -5,11 +5,11 @@
 | Item | Valor |
 |---|---|
 | Método | M15 `contest_end_effective`. Testado **integrado** com o M14 `time_override_end` real, sem stub (os defeitos X1/X2 estão na composição dos dois) |
-| Arquivo | `server/api/v1/lib/contest-gate.sh`: `contest_end_effective` nas linhas 35–42 (comentário nas linhas 32–34) |
-| Commit | `ec13d5cc` (`master`) |
+| Arquivo | `server/api/v1/lib/contest-gate.sh`. Na análise (seções 3–6): `contest_end_effective` nas linhas 35–42 (comentário nas linhas 32–34). Depois do TDD (seção 7): helper `epoch_dec_to` nas linhas 32–37 e `contest_end_effective` nas linhas 42–49 (comentário nas linhas 39–41) |
+| Commit | Análise: `ec13d5cc` (`master`). TDD (seção 7): feito sobre `46cd4d75`, a ponta da branch com os testes |
 | Branch | `test/eduardo-m15` |
 | Ferramentas | GNU bash 5.3.20(1)-release · jq-1.8.2 · Python 3.14.8 (oráculo do porteiro) · kcov 43 · ImageMagick 7.1.2-34 · Arch Linux, kernel 6.18.57-2-lts |
-| Data | 2026-11-01 |
+| Data | 2026-11-01 (testes e TDD) |
 | Script | `Test_Eduardo/contest-end-effective.sh`: teste de unidade, offline, com fixture em `mktemp -d` |
 
 Para reproduzir, rode na raiz do `cdmoj`:
@@ -17,7 +17,8 @@ Para reproduzir, rode na raiz do `cdmoj`:
 ```bash
 ./Test_Eduardo/contest-end-effective.sh                 # execução normal (exit 0 = nenhum caso E falhou)
 ./Test_Eduardo/contest-end-effective.sh --trace         # grava evidencias/traces/<ID>.trace (xtrace)
-python3 -I Test_Eduardo/oraculo-porteiro.py             # oráculo: o espelho em Python (porteiro) nas entradas dos XFAIL
+python3 -I Test_Eduardo/oraculo-porteiro.py             # oráculo: o espelho em Python (porteiro) nas entradas dos XFAIL e do TDD
+bash server/test/smoke-time-overrides.sh                # regressão do TDD: testes do upstream, não alterados (seção 7)
 kcov --include-path="$PWD/server/api/v1/lib/contest-gate.sh" Test_Eduardo/evidencias/cobertura ./Test_Eduardo/contest-end-effective.sh
 ```
 
@@ -63,10 +64,16 @@ Valor limite (há ordem entre `oend` e `END`): `oend = END−1` (não estende), 
 | X2 | I4 (1ª regra `1700000100.5`, 2ª `1700000200`) | inválida → XFAIL |
 | X3 | I8 (`CONTEST_END=0100`, override 99) | inválida → XFAIL |
 | X4 | I8 (`CONTEST_END=09`, override 1700000100) | inválida → XFAIL |
+| T1 | I8 (`CONTEST_END=0001700000000`, override 1699999999 = END−1) | inválida, criado no Red do TDD |
+| T2 | I8 (`CONTEST_END=00`, sem override) | inválida, criado no Red do TDD |
+
+X3 e X4 começaram como XFAIL e foram promovidos a casos obrigatórios no ciclo TDD (seção 7), quando o defeito passou a ser corrigido.
 
 ## 4. Caixa-branca
 
 ### Decisões e condições
+
+Esta seção descreve o código **analisado** (`ec13d5cc`). Depois do Refactor do TDD, a D1 mora no helper `epoch_dec_to` (um `if/else`, com a mesma condição). A D2 não mudou (seção 7).
 
 | Decisão | Linha | Expressão |
 |---|---|---|
@@ -122,7 +129,9 @@ O xtrace mostra o R numa linha própria (`contest_end_effective:40: [[ 170000010
 
 ## 5. Resultados
 
-Execução de 2026-11-01 (`evidencias/saida-2026-11-01.txt`, com `--trace`): **`RESULT: 13 passed, 0 failed, 4 xfail`**, exit 0. A execução sem `--trace` e a execução sob kcov deram o mesmo resultado.
+Execução de 2026-11-01, **antes do TDD** (`evidencias/saida-2026-11-01.txt`, com `--trace`): **`RESULT: 13 passed, 0 failed, 4 xfail`**, exit 0. A execução sem `--trace` e a execução sob kcov deram o mesmo resultado.
+
+Execução **depois do TDD** (`evidencias/tdd/ciclo1-3-refactor.txt`): **`RESULT: 17 passed, 0 failed, 2 xfail`**, exit 0. X3 e X4 viraram casos obrigatórios e passam, e T1/T2 foram criados no ciclo. Na tabela abaixo, a coluna "Obtido" de X3, X4, T1 e T2 mostra o antes e o depois.
 
 | ID | Entrada (conf · override · login) | Esperado | Obtido | Status | Critério |
 |---|---|---|---|---|---|
@@ -141,10 +150,14 @@ Execução de 2026-11-01 (`evidencias/saida-2026-11-01.txt`, com `--trace`): **`
 | E13 | END · `[end -1, end 1700000100]` · L | `1700000000` | rc0 `1700000000` | ok | I5: a 1ª que casa vence (bash = porteiro) |
 | X1 | END · rule(1.7000001e9) · L | `1700000100` | rc0 `1700000000` | XFAIL | só estende; paridade com o porteiro |
 | X2 | END · `[1700000100.5, 1700000200]` · L | `1700000100` | rc0 `1700000000` | XFAIL | idem |
-| X3 | END=0100 · rule(99) · L | `100` | rc0 `99` | XFAIL | **nunca encurta** |
-| X4 | END=09 · rule(1700000100) · L | `1700000100` | rc0 `09` + stderr `value too great for base` | XFAIL | só estende; epoch |
+| X3 | END=0100 · rule(99) · L | `100` | antes: rc0 `99` · depois: rc0 `100` | XFAIL → ok (TDD) | **nunca encurta** |
+| X4 | END=09 · rule(1700000100) · L | `1700000100` | antes: rc0 `09` + stderr `value too great for base` · depois: rc0 `1700000100` | XFAIL → ok (TDD) | só estende; epoch |
+| T1 | END=0001700000000 · rule(1699999999) · L | `1700000000` | Red: rc0 `1699999999` · depois: rc0 `1700000000` | FAIL → ok (TDD) | nunca encurta; epoch real |
+| T2 | END=00 · sem arquivo · L | `0` | Red: rc0 `00` · depois: rc0 `0` | FAIL → ok (TDD) | `0` = sem limite (porteiro: `int`) |
 
-![Execução completa — 13 passed, 0 failed, 4 xfail](evidencias/img/execucao-completa.png)
+![Execução completa antes do TDD — 13 passed, 0 failed, 4 xfail](evidencias/img/execucao-completa.png)
+
+A execução completa depois do TDD está na seção 7 (imagem do Refactor).
 
 ### Traces dos pares MC/DC
 
@@ -207,12 +220,12 @@ Nos quatro XFAIL, o bash e o porteiro **divergem**. A mesma prova tem fins difer
 
 ![X2 — override float descartado](evidencias/img/xfail-X2.png)
 
-### X3 e X4: `CONTEST_END` com zero à esquerda é lido em octal
+### X3 e X4: `CONTEST_END` com zero à esquerda é lido em octal (CORRIGIDO no ciclo TDD 1)
 
 - **Obtido:** X3 `CONTEST_END=0100`, override `99` → `99`. O `(( ))` lê `0100` como octal (64), vê `99 > 64` e troca o fim por 99: o fim **encolheu** de 100 para 99. X4 `CONTEST_END=09` → saída `09` e, no stderr, `contest-gate.sh: line 40: ((: 09: value too great for base (error token is "09")`. O override não é aplicado.
 - **Por que viola o contrato:** *"o override só ESTENDE — nunca encurta"*. A D1 (linha 38) aceita `0100` porque `^[0-9]+$` casa, mas a comparação da linha 40 usa outra base. O espelho lê em decimal (`int("0100") = 100`) e dá `100` e `1700000100`.
 - **Como acontece em produção:** na criação, o `CONTEST_END` é gravado com `printf %q` de um epoch, sem zero à esquerda. Pela **leitura do código** (não executado ponta a ponta), o `POST /contest/admin/settings` aceita `{"end":"0100"}`: ele valida `jq -r .end` com `^[0-9]+$`, e uma string JSON `"0100"` passa e é gravada como `CONTEST_END=0100`. Um JSON com número `0100` não chega assim (o jq normaliza para `100`). Também acontece com conf editado à mão. Um epoch real com zero à esquerda é absurdo, mas o resultado (encurtar) é exatamente o que o contrato proíbe, e o erro do X4 vai parar no error.log do nginx.
-- **Correção sugerida (não aplicada):**
+- **Correção:** a sugerida abaixo foi **aplicada** como o Green do ciclo TDD 1 e depois refatorada para o helper `epoch_dec_to` (seção 7). A correção do X1/X2 continua só sugerida.
 
 ```diff
 --- a/server/api/v1/lib/contest-gate.sh
@@ -223,18 +236,116 @@ Nos quatro XFAIL, o bash e o porteiro **divergem**. A mesma prova tem fins difer
 +  [[ "$CONTEST_END" =~ ^[0-9]+$ ]] && CONTEST_END=$((10#$CONTEST_END)) || CONTEST_END=0
 ```
 
-`10#` força a base decimal e reproduz o `int()` do porteiro. As duas correções desta seção, junto com a do M14, foram validadas numa **cópia descartável** da lib, fora do repo: `RESULT: 13 passed, 0 failed, 0 xfail`, com X1–X4 em XPASS. O script do M14 na mesma cópia deu `28 passed, 0 failed`. O código de produção não foi alterado.
+`10#` força a base decimal e reproduz o `int()` do porteiro. As duas correções desta seção, junto com a do M14, foram validadas numa **cópia descartável** da lib, fora do repo: `RESULT: 13 passed, 0 failed, 0 xfail`, com X1–X4 em XPASS. O script do M14 na mesma cópia deu `28 passed, 0 failed`. Nessa etapa o código de produção não foi alterado. A alteração veio depois, com autorização do Eduardo, no ciclo TDD (seção 7), e só para o X3/X4.
 
-![X3 — CONTEST_END=0100 encurtado para 99](evidencias/img/xfail-X3.png)
+![X3 — CONTEST_END=0100 encurtado para 99 (antes do TDD)](evidencias/img/xfail-X3.png)
 
-![X4 — CONTEST_END=09: erro de base no (( ))](evidencias/img/xfail-X4.png)
+![X4 — CONTEST_END=09: erro de base no (( )) (antes do TDD)](evidencias/img/xfail-X4.png)
 
 ### Hipóteses do planejamento revistas
 
 - **`end: -1` (E13) não é defeito.** O bash ignora o `-1` (R=F), e o porteiro faz `int(-1) = -1`, que não é maior que o END. Os dois ficam em `1700000000`. Nos dois a 1ª regra que casa vence, e a 2ª não é consultada. É caso que passa.
 - **Octal.** O planejamento registrava como observado `09 → 1700000100 sem erro` e `0100 → 0100`. A execução real (bash 5.3.20) deu outra coisa (X3/X4 acima). Valem os resultados medidos aqui.
 
-## 7. Lacunas e limitações
+## 7. Aplicação de TDD (ciclo 1: `CONTEST_END` com zero à esquerda)
+
+**O que foi desenvolvido:** a correção do defeito X3/X4 (seção 6). Antes, `CONTEST_END` com zero à esquerda era lido em octal, o que podia **encurtar** o fim da prova ou dar erro de base. Escolhi esse defeito por quatro motivos:
+- viola uma frase explícita do contrato (*"nunca encurta"*);
+- deve ser alcançável pela API (`admin/settings`);
+- tem um oráculo independente (o porteiro lê em decimal);
+- a correção cabe numa linha e deixa espaço para um Refactor real.
+
+Evidências do ciclo em `evidencias/tdd/`: a saída `.txt` de cada fase e o `.diff` do que mudou nela.
+
+| Fase | O que mudou | Resultado real | Evidência |
+|---|---|---|---|
+| **Red** | Só o teste. X3 e X4 passaram de XFAIL a casos obrigatórios. T1 e T2 foram criados. O oráculo do porteiro ganhou T1/T2. | `13 passed, 4 failed, 2 xfail`, exit 1 | `ciclo1-1-red.txt`, `ciclo1-1-red.diff` |
+| **Green** | 1 linha em `contest-gate.sh`: `10#` força a base decimal | `17 passed, 0 failed, 2 xfail`, exit 0. Upstream `smoke-time-overrides.sh`: `12 passed, 0 failed` | `ciclo1-2-green.txt`, `ciclo1-2-green.diff`, `ciclo1-2-green-regressao.txt` |
+| **Refactor** | A regra virou o helper `epoch_dec_to`, e a função passou a chamá-lo | `17 passed, 0 failed, 2 xfail`, exit 0. 4 smokes do upstream com 0 falhas | `ciclo1-3-refactor.txt`, `ciclo1-3-refactor.diff`, `ciclo1-3-refactor-regressao.txt` |
+
+### Evolução dos testes (Red)
+
+- **X3 e X4 mudaram de tipo** (`caso X` → `caso C`). O esperado **não mudou**: continua sendo o que o contrato e o porteiro dizem (`100` e `1700000100`). O que mudou é que a falha agora quebra o exit code.
+- **T1 (novo):** `CONTEST_END=0001700000000` com override `1699999999` (END−1), esperado `1700000000`. X3 usa um epoch de brinquedo (`0100`); T1 mostra o mesmo defeito com um epoch realista e no valor limite: o bash lia `0001700000000` em octal (≈ 2,5×10⁸), achava o override maior e **encurtava** a prova para `1699999999`.
+- **T2 (novo):** `CONTEST_END=00` sem override, esperado `0`. "Sem limite" é `0`, como o porteiro devolve (`int("00") = 0`). O bash ecoava `"00"`. Esse caso prende que a correção também normaliza a saída, e não só a comparação.
+- **Oráculo:** antes de rodar o Red, executei o porteiro com T1 e T2 (`python3 -I Test_Eduardo/oraculo-porteiro.py`). Ele deu `1700000000` e `0`, os mesmos esperados do teste (`evidencias/oraculo-porteiro-2026-11-01.txt`).
+- X1 e X2 continuam XFAIL: a correção deles fica no M14 e não entrou neste ciclo.
+
+![TDD ciclo 1 — RED: X3, X4, T1 e T2 falham, 13 passed, 4 failed, 2 xfail, exit 1](evidencias/img/tdd-ciclo1-red.png)
+
+### Evolução da implementação
+
+**Green, a correção mínima.** Uma linha: a mesma regex decide e o `10#` converte para decimal.
+
+```diff
+@@ contest_end_effective
+   source "$CONTESTSDIR/$1/conf" 2>/dev/null
+-  [[ "$CONTEST_END" =~ ^[0-9]+$ ]] || CONTEST_END=0
++  [[ "$CONTEST_END" =~ ^[0-9]+$ ]] && CONTEST_END=$((10#$CONTEST_END)) || CONTEST_END=0
+   oend="$(time_override_end "$1" "${2:-}")"
+```
+
+![TDD ciclo 1 — diff do GREEN](evidencias/img/tdd-ciclo1-green-diff.png)
+
+![TDD ciclo 1 — GREEN: 17 passed, 0 failed, 2 xfail, exit 0](evidencias/img/tdd-ciclo1-green.png)
+
+**Refactor, a regra com nome.**
+
+```diff
++# epoch_dec_to <var> : normaliza a variável (nameref, zero fork) p/ inteiro DECIMAL — "0100" vale 100,
++# nunca o octal 64 que o (( )) leria — ou 0 se ela não for só dígitos. Mesma leitura do porteiro (conf_int).
++epoch_dec_to() {
++  local -n __ed_ref="$1"
++  if [[ "$__ed_ref" =~ ^[0-9]+$ ]]; then __ed_ref=$((10#$__ed_ref)); else __ed_ref=0; fi
++}
+@@ contest_end_effective
+   source "$CONTESTSDIR/$1/conf" 2>/dev/null
+-  [[ "$CONTEST_END" =~ ^[0-9]+$ ]] || CONTEST_END=0
++  epoch_dec_to CONTEST_END
+   oend="$(time_override_end "$1" "${2:-}")"
+```
+
+(Diff acumulado contra o `HEAD`, em `ciclo1-3-refactor.diff`.)
+
+![TDD ciclo 1 — diff do REFACTOR (acumulado contra o HEAD)](evidencias/img/tdd-ciclo1-refactor-diff.png)
+
+![TDD ciclo 1 — REFACTOR: 17 passed, 0 failed, 2 xfail, exit 0](evidencias/img/tdd-ciclo1-refactor.png)
+
+### Refatorações realizadas
+
+1. **Saiu o `a && b || c`.** No Green, o `|| CONTEST_END=0` rodaria também se a atribuição do meio falhasse, e não só quando a regex não casa. O `if/else` diz exatamente "casa → converte; não casa → 0".
+2. **A regra ganhou nome e um comentário que diz por que ela existe** (octal, paridade com o `conf_int` do porteiro). Antes estava escondida no meio da função.
+3. **Ficou reutilizável sem custo:** o nameref (`local -n`) normaliza a própria variável do chamador, sem `$(…)`, ou seja, sem fork. É o mesmo padrão do `conf_value_to` do `common.sh`, e o que o upstream pede para caminho quente (o `contest_phase` chama esta função a cada `/submit`).
+4. **O que NÃO foi feito no Refactor:** trocar a linha igual da `contest_end_all` pelo helper. Isso **muda o comportamento** dela (hoje ela também encurta com `0100`; sondagem real: `contest_end_all` = `99`, `contest_end_effective` = `100`). Mudar comportamento pede um ciclo novo, começando por um teste vermelho. Ficou como próximo ciclo.
+
+Regressão: os testes do upstream que exercitam essa lib foram rodados **sem alteração** depois do Refactor:
+- `smoke-time-overrides.sh` (rota `/submit` e countdown com prorrogação);
+- `smoke-porteiro.sh` (paridade com o espelho);
+- `smoke-modules-off-rules.sh` (módulo `sedes` desligado);
+- `smoke-contest-rounds.sh` (guarda do freeze, que usa o `contest_end_all`).
+
+![TDD ciclo 1 — regressão: 4 smokes do upstream, 0 falhas](evidencias/img/tdd-ciclo1-regressao.png)
+
+### Dificuldades
+
+- **O Red já existia, mas como XFAIL.** No trabalho de testes o defeito era registrado como XFAIL, que não quebra o exit code. Para o TDD foi preciso decidir conscientemente o momento de promovê-lo a caso obrigatório: só quando a correção passou a estar no escopo, e sem mexer no esperado.
+- **A primeira hipótese estava errada.** O planejamento dizia que `09` passava sem erro e que `0100` devolvia `0100`. Só rodar de verdade mostrou o comportamento real (octal e erro de base). Sem a execução, o teste teria nascido com o oráculo errado.
+- **Escolher o mínimo do Green.** O primeiro impulso era já criar o helper e consertar também a `contest_end_all`. Segurar isso para o Refactor, e a irmã para um ciclo próprio, foi o que deixou cada fase com um diff pequeno e explicável.
+- **Medir a regressão.** O upstream tem 216 scripts em `server/test/`, e nem todos são offline ou rápidos. Escolhi os que exercitam esta lib, o que é uma amostra e não a suíte inteira (seção 8).
+
+### Benefícios observados
+
+- **Teste antes da correção = prova de que o teste detecta o defeito.** Os 4 vermelhos do Red mostram que, se a correção for revertida, a suíte avisa.
+- **O T1 surgiu por causa do TDD:** escrever o teste antes obrigou a pensar num caso realista. Foi ele que mostrou que o defeito não depende de epoch de brinquedo: um fim de prova real com zeros à esquerda perde tempo.
+- **Refatorar sem medo.** O helper mudou a estrutura da função, e o mesmo `17 passed` antes e depois, mais a regressão do upstream, mostram que o comportamento ficou igual.
+- **A refatoração revelou o próximo defeito.** Ao procurar onde reutilizar o helper apareceu a `contest_end_all` com o mesmo problema, já confirmado por execução.
+
+### Próximos ciclos possíveis (não feitos)
+
+- **`contest_end_all`** (mesmo arquivo, fora do escopo do M15): Red com `CONTEST_END=0100` e override `99` (esperado `100`, obtido `99`). O Green seria trocar a linha 60 por `epoch_dec_to CONTEST_END`.
+- **X1/X2 via M14** (`| $e | floor` no `time_override_end`, seção 6): pertence à branch do M14.
+
+## 8. Lacunas e limitações
 
 - **`(( A && B ))` numa linha só.** O xtrace não separa A de B. A independência delas vem dos dados (seção 4).
 - **Overflow de 64 bits.** Fora dos casos. Sondagem real com o bash 5.3.20: `end = 99999999999999999999` (20 dígitos) → a função devolveu `99999999999999999999` (prorrogou); `end = 9223372036854775808` (2^63) → devolveu `1700000000` (o valor vira negativo no `(( ))` e não prorroga). Pela API esses valores chegam com expoente (depois do `floor`, o jq 1.8.2 imprime `1e+16` em diante), e aí caem no X1. São epochs absurdos (anos acima de 3×10⁹), então ficam só como nota.
@@ -242,12 +353,15 @@ Nos quatro XFAIL, o bash e o porteiro **divergem**. A mesma prova tem fins difer
 - **`CONTEST_START` não é usado** pela função (o `local` só o isola do chamador). O `source` do conf poderia redefinir outras variáveis do chamador. O teste não cobre esse vazamento, porque a função roda em subshell nos chamadores (`$(…)`).
 - **Integração com o M14.** O M15 foi testado com o M14 real. As partições do M14 (arquivo, módulo, regex) não foram repetidas aqui: E12 cobre só o módulo desligado.
 - **Caminhos temporários nos traces.** Os traces trazem caminhos do `mktemp` (`/tmp/tmp.XXXX`), que mudam a cada execução.
-- **Cobertura.** O kcov mede só linha. Não há medida automática de decisão nem de MC/DC.
+- **Cobertura.** O kcov mede só linha. Não há medida automática de decisão nem de MC/DC. O relatório do kcov (seção 5) e os traces em `evidencias/traces/` são do código **antes** do TDD. Depois do Refactor eles não foram regerados.
+- **`contest_end_all` continua com o defeito do octal.** Sondagem real depois do Refactor: `CONTEST_END=0100` com override `99` → `contest_end_effective` = `100` e `contest_end_all` = `99`. Ela não é método deste trabalho, e corrigi-la muda comportamento (não é refatoração), então ficou como próximo ciclo (seção 7).
+- **Regressão limitada.** Rodei 4 smokes do upstream ligados à função, não a suíte inteira do `server/test/`.
 
-## 8. Uso de Inteligência Artificial
+## 9. Uso de Inteligência Artificial
 
 - **Ferramentas:** Claude (chat) e Claude Code (agente no terminal).
 - **Análise e planejamento:** a análise do código, as partições, os pares MC/DC e as hipóteses X1/X2 foram feitos com apoio de IA e registrados no planejamento (`planejamento-m15.txt`).
 - **Implementação e evidências (Claude Code):** a escrita e a execução do `contest-end-effective.sh` e do `oraculo-porteiro.py`. A geração das evidências: saída, traces, imagens e cobertura com o kcov. A redação deste relatório, incluindo as correções sugeridas em diff. O X3/X4 surgiu nessa etapa: a sondagem real contradisse a observação do planejamento sobre octal.
+- **TDD (Claude Code):** a escolha do defeito (X3/X4) foi sugerida pela IA e aprovada pelo Eduardo, que autorizou a alteração no código de produção. A IA escreveu os testes do Red, a correção do Green, o helper do Refactor e as evidências de cada fase, e rodou a regressão.
 - **Revisão e decisões (Eduardo):** a revisão do material e as decisões sobre os oráculos e sobre o que entra neste relatório.
 - **Autorização:** a professora da disciplina autorizou o uso de IA neste trabalho.
