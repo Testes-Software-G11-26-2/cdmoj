@@ -1,0 +1,43 @@
++ Test_Guilherme/effective-problem-langs.sh:58:scenario: effective_problem_langs c org#p
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m20/server/api/v1/lib/langs.sh:62:effective_problem_langs: local contest=c pid=org#p plangs= clangs= pjf
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m20/server/api/v1/lib/langs.sh:63:effective_problem_langs: [[ -z '' ]]
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m20/server/api/v1/lib/langs.sh:64:effective_problem_langs: _EPL[pj:$contest]='{}'
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m20/server/api/v1/lib/langs.sh:65:effective_problem_langs: [[ -n {} ]]
+++ /c/Users/negre/repos/moj/cdmoj-guilherme-m20/server/api/v1/lib/langs.sh:68:effective_problem_langs: LANGUAGES=
+++ /c/Users/negre/repos/moj/cdmoj-guilherme-m20/server/api/v1/lib/langs.sh:69:effective_problem_langs: load_contest_conf c
+++ Test_Guilherme/effective-problem-langs.sh:44:load_contest_conf: printf '%s\n' c
+++ Test_Guilherme/effective-problem-langs.sh:45:load_contest_conf: M20_MARKER=changed
+++ Test_Guilherme/effective-problem-langs.sh:46:load_contest_conf: [[ '' == @fail ]]
+++ Test_Guilherme/effective-problem-langs.sh:47:load_contest_conf: LANGUAGES=
+++ /c/Users/negre/repos/moj/cdmoj-guilherme-m20/server/api/v1/lib/langs.sh:70:effective_problem_langs: [[ -n '' ]]
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m20/server/api/v1/lib/langs.sh:68:effective_problem_langs: _EPL[cl:$contest]=
+++ /c/Users/negre/repos/moj/cdmoj-guilherme-m20/server/api/v1/lib/langs.sh:70:effective_problem_langs: jq -c --arg id org#p '.[$id] // empty'
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m20/server/api/v1/lib/langs.sh:70:effective_problem_langs: plangs=
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m20/server/api/v1/lib/langs.sh:71:effective_problem_langs: [[ -n '' ]]
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m20/server/api/v1/lib/langs.sh:72:effective_problem_langs: clangs=
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m20/server/api/v1/lib/langs.sh:73:effective_problem_langs: [[ -n '' ]]
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m20/server/api/v1/lib/langs.sh:74:effective_problem_langs: pjf=/tmp/tmp.kdpg2zh6Vn/C03/contests/treino/var/jsons/org#p.json
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m20/server/api/v1/lib/langs.sh:75:effective_problem_langs: [[ -f /tmp/tmp.kdpg2zh6Vn/C03/contests/treino/var/jsons/org#p.json ]]
+++ /c/Users/negre/repos/moj/cdmoj-guilherme-m20/server/api/v1/lib/langs.sh:76:effective_problem_langs: jq -c '.languages // []' /tmp/tmp.kdpg2zh6Vn/C03/contests/treino/var/jsons/org#p.json
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m20/server/api/v1/lib/langs.sh:76:effective_problem_langs: plangs='["java"]'
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m20/server/api/v1/lib/langs.sh:77:effective_problem_langs: [[ -n ["java"] ]]
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m20/server/api/v1/lib/langs.sh:77:effective_problem_langs: [[ ["java"] != null ]]
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m20/server/api/v1/lib/langs.sh:78:effective_problem_langs: printf %s '["java"]'
++ Test_Guilherme/effective-problem-langs.sh:59:scenario: rc=0
++ Test_Guilherme/effective-problem-langs.sh:61:scenario: assert_output '["java"]' 0
++ Test_Guilherme/effective-problem-langs.sh:27:assert_output: local 'expected=["java"]' rc=0
++ Test_Guilherme/effective-problem-langs.sh:28:assert_output: printf %s '["java"]'
++ Test_Guilherme/effective-problem-langs.sh:29:assert_output: [[ 0 -eq 0 ]]
++ Test_Guilherme/effective-problem-langs.sh:29:assert_output: cmp -s /tmp/tmp.kdpg2zh6Vn/C03/expected /tmp/tmp.kdpg2zh6Vn/C03/out
++ Test_Guilherme/effective-problem-langs.sh:29:assert_output: [[ ! -s /tmp/tmp.kdpg2zh6Vn/C03/err ]]
++ Test_Guilherme/effective-problem-langs.sh:62:scenario: [[ outer-value == outer-value ]]
++ Test_Guilherme/effective-problem-langs.sh:62:scenario: [[ outer-marker == outer-marker ]]
++ Test_Guilherme/effective-problem-langs.sh:63:scenario: case "$mode" in
++ Test_Guilherme/effective-problem-langs.sh:79:scenario: local loads=0 line
++ Test_Guilherme/effective-problem-langs.sh:80:scenario: IFS=
++ Test_Guilherme/effective-problem-langs.sh:80:scenario: read -r line
++ Test_Guilherme/effective-problem-langs.sh:80:scenario: loads=1
++ Test_Guilherme/effective-problem-langs.sh:80:scenario: IFS=
++ Test_Guilherme/effective-problem-langs.sh:80:scenario: read -r line
++ Test_Guilherme/effective-problem-langs.sh:81:scenario: [[ once == cache-contest ]]
++ Test_Guilherme/effective-problem-langs.sh:81:scenario: [[ 1 -eq 1 ]]
