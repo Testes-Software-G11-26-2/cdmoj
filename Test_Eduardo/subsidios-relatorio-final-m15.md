@@ -28,27 +28,29 @@ O M15 fica em `server/api/v1/lib/contest-gate.sh` e é chamado pelo `contest_pha
 - **Caixa-branca:** decisões D1 e D2 com V e F; D2 tem três condições (`R ∧ (A ∧ B)`), cobertas por **MC/DC** com três pares (E02×E01, E02×E06, E02×E03). Curto-circuito e mascaramento documentados (seção 4).
 - **Evidência de caminho:** xtrace por caso (`--trace`), que mostra a linha e o valor de cada condição.
 - **Cobertura de linhas:** kcov (seção 5).
-- **TDD:** ciclo Red → Green → Refactor sobre o defeito X3/X4 (seção 7).
+- **TDD:** 2 ciclos Red → Green → Refactor: X3/X4 (octal) e X1/X2 (float e exponencial) (seção 7).
 
 ## Testes desenvolvidos
 
 - Script `contest-end-effective.sh`, no estilo dos testes do upstream (`set -u`, contadores, linha `RESULT`, exit 1 se algum caso obrigatório falhar).
 - **Antes do TDD:** 17 casos — `13 passed, 0 failed, 4 xfail`.
-- **Depois do TDD:** 19 casos — `17 passed, 0 failed, 2 xfail`.
+- **Depois do ciclo 1 do TDD:** 19 casos — `17 passed, 0 failed, 2 xfail`.
+- **Depois do ciclo 2 do TDD:** 22 casos — `22 passed, 0 failed, 0 xfail`.
 - **Defeitos encontrados** (seção 6), todos divergências entre bash e porteiro:
-  - X1/X2: override exponencial ou float é descartado e o time perde a prorrogação (só por arquivo editado fora da API);
-  - X3/X4: `CONTEST_END` com zero à esquerda era lido em **octal**: `0100` virava 64 e a prova **encurtava** para 99; `09` dava erro de base. **Corrigido no TDD.**
+  - X1/X2: override exponencial ou float era descartado e o time perdia a prorrogação (só por arquivo editado fora da API). **Corrigido no ciclo 2**, no próprio M15;
+  - X3/X4: `CONTEST_END` com zero à esquerda era lido em **octal**: `0100` virava 64 e a prova **encurtava** para 99; `09` dava erro de base. **Corrigido no ciclo 1.**
 
 ## Métricas de cobertura
 
 | Métrica | Valor medido | Como |
 |---|---|---|
-| Linhas do M15 + helper `epoch_dec_to` (kcov, depois do TDD) | 8 de 8 linhas instrumentadas cobertas (35–36, 43–48) | `cobertura.xml` do kcov |
+| Linhas do M15 + helpers (kcov, depois dos 2 ciclos) | 8 de 8 linhas instrumentadas cobertas (35–36, 44–47, 61–62); **6 linhas que rodam (48, 56–60) não foram instrumentadas pelo kcov**, e o xtrace mostra que executam | `cobertura.xml` do kcov + traces |
+| Linhas do M15 + helper `epoch_dec_to` (kcov, depois do ciclo 1) | 8 de 8 linhas instrumentadas cobertas (35–36, 43–48) | medição de 2026-11-02, antes do ciclo 2 |
 | Linhas do M15 (kcov, antes do TDD) | 6 de 6 linhas instrumentadas cobertas (36–41) | medição de 2026-11-01 |
-| Decisões (V e F) | D1 e D2 com os dois lados exercitados | tabela da seção 4, conferida nos traces |
+| Decisões (V e F) | D1, D2 e as do ciclo 2 (D3, D4) com os dois lados exercitados | tabela da seção 4, conferida nos traces |
 | MC/DC de D2 | 3 de 3 condições com par independente | pares da seção 4 + imagens `mcdc-*.png` |
 
-Ressalvas: o kcov mede só **linha** — a linha da D2 conta como coberta com qualquer caso, então decisão e MC/DC vêm dos traces e dos pares, não da ferramenta. O kcov foi gerado de novo depois do TDD (2026-11-02).
+Ressalvas: o kcov mede só **linha** — a linha da D2 conta como coberta com qualquer caso, então decisão e MC/DC vêm dos traces e dos pares, não da ferramenta. O kcov foi gerado de novo depois de cada ciclo (2026-11-02).
 
 ## Descrição do processo de TDD
 
@@ -59,6 +61,14 @@ Resumo da seção 7 do relatório de testes. Cada fase tem um commit próprio na
 | Red | `863e72e0` | X3/X4 promovidos de XFAIL a obrigatórios; casos novos T1 (`0001700000000`) e T2 (`00`) | `13 passed, 4 failed`, exit 1 |
 | Green | `e2812ad9` | 1 linha: `$((10#$CONTEST_END))` força base decimal | `17 passed, 0 failed` |
 | Refactor | `b8cf5b96` | regra extraída para o helper `epoch_dec_to` (nameref, sem fork); sai o `a && b \|\| c` | `17 passed, 0 failed` + 4 smokes do upstream sem falha |
+
+Ciclo 2 (X1/X2, override float e exponencial; correção no M15 por decisão do Eduardo):
+
+| Fase | Commit | O que mudou | Resultado |
+|---|---|---|---|
+| Red | `994477e5` | X1/X2 de XFAIL a obrigatórios; T3 (`1e10`), T4 (`1.70000015e9`, sobra fração) e T5 (proteção: `1700000000.9` trunca, não arredonda) | `18 passed, 4 failed`, exit 1 |
+| Green | `65468927` | 5 linhas: desloca a vírgula pelo expoente e corta a fração, em bash puro | `22 passed, 0 failed` |
+| Refactor | `32b6362c` | helper `num_trunc_to` (nameref, sem fork) | `22 passed, 0 failed` + 4 smokes do upstream e `jq-portability.sh` sem falha |
 
 ## Análise crítica (contribuição do M15)
 
@@ -88,6 +98,7 @@ Resumo da seção 7 do relatório de testes. Cada fase tem um commit próprio na
 - O teste escrito antes obrigou a decidir o contrato que faltava (T2: `"00"` deve sair `0`).
 - O Refactor deu nome à regra (`epoch_dec_to`) e a tornou reutilizável sem custo de processo — e foi procurando onde reutilizá-la que apareceu o **mesmo defeito na `contest_end_all`** (confirmado por execução: `0100` → `99`). O TDD virou uma ferramenta de descoberta, não só de correção.
 - Fases pequenas (1 linha no Green) deixam o diff revisável e o histórico explica o porquê de cada mudança.
+- No ciclo 2, os casos escritos antes (T4 e T5) definiram a correção: T4 obriga a tratar expoente **e** fração juntos, e T5 obriga a truncar em vez de arredondar.
 
 **Lições aprendidas.**
 - O oráculo vem do contrato, nunca do que o código faz hoje.
@@ -97,4 +108,4 @@ Resumo da seção 7 do relatório de testes. Cada fase tem um commit próprio na
 
 ## Conclusão (contribuição)
 
-O M15 foi testado com 19 casos (17 obrigatórios e 2 hipóteses de defeito), com cobertura de decisões e MC/DC documentada e oráculo de paridade executado. Foram encontrados quatro defeitos, todos divergências entre o bash e o porteiro. Dois deles (X3/X4, leitura em octal que podia encurtar a prova) foram corrigidos com TDD, em três commits que mostram o Red, o Green e o Refactor. Ficam como trabalho futuro: o mesmo defeito na `contest_end_all` e a correção do X1/X2 no M14.
+O M15 foi testado com 19 casos (17 obrigatórios e 2 hipóteses de defeito), com cobertura de decisões e MC/DC documentada e oráculo de paridade executado. Foram encontrados quatro defeitos, todos divergências entre o bash e o porteiro. Os quatro foram corrigidos com TDD, em 2 ciclos de três commits cada (Red, Green, Refactor): X3/X4 (leitura em octal que podia encurtar a prova) e X1/X2 (override float ou exponencial descartado). Hoje são 22 casos, todos obrigatórios e passando. Fica como trabalho futuro a `contest_end_all`, que tem os mesmos dois defeitos.
