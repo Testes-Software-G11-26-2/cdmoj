@@ -10,7 +10,7 @@
 # offline-submit, test-run) grava no spool/history a linguagem CANÔNICA, não a extensão crua —
 # antes `sol.cc` entrava como lang "CC", nenhum juiz anunciava `cc` (90 s de LANG_GRACE) e o
 # julgador morria em "Language 'cc' not availale" (pedido do Ribas, 2026-09-14).
-_lang_canon(){ local t; t="$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')"
+_lang_canon(){ (( $# > 0 )) || return 2; local t; t="$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')"
   case "$t" in
     c++|cc|cxx|hpp) printf 'cpp';;
     h)              printf 'c';;
