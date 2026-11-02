@@ -102,3 +102,20 @@ O ciclo Red -> Green -> Refactor foi executado e registrado. O requisito novo e 
 bash Test_Guilherme/lang-canon.sh --suite todos
 bash Test_Guilherme/lang-canon.sh --suite todos --trace Test_Guilherme/evidencias/execucao/traces
 ```
+
+## Uso de Inteligência Artificial
+
+**Ferramenta de apoio:** ChatGPT.
+
+**Finalidades de apoio:**
+
+- Esclarecer dúvidas conceituais sobre técnicas de teste de software, como particionamento de equivalência, análise de valor-limite, cobertura de testes e MC/DC.
+- Consultar explicações gerais sobre mensagens de erro de compilação, execução ou configuração do ambiente de desenvolvimento.
+- Revisar a clareza e a correção gramatical do relatório técnico, sem gerar ou reescrever sua análise crítica e suas conclusões.
+
+**Exemplos de prompts:**
+
+1. “Explique a diferença entre particionamento de equivalência e análise de valor-limite no contexto de entradas textuais.”
+2. “Por que executar todos os ramos de um case não garante, por si só, que todas as alternativas de entrada estejam corretas?”
+3. “O que significa a mensagem ‘unbound variable’ em Bash quando a opção set -u está habilitada?”
+4. “Revise apenas a clareza e a correção gramatical deste trecho sobre normalização de tokens, sem alterar o conteúdo técnico, a análise crítica ou as conclusões.”
