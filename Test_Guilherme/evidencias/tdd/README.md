@@ -14,4 +14,6 @@ Execucao realizada pelo integrante em 02/11/2026: 24 aprovados, 0 falhas, inclui
 
 ## Refactor
 
-Proxima etapa: refatoracao estrutural e reexecucao da mesma suite. Ainda nao executada.
+Refatoracao estrutural implementada, descrita em refactor.md e refactor.diff.
+A reexecucao da mesma suite ainda esta pendente; Green nao comprova por si
+so a preservacao do comportamento depois desta mudanca.

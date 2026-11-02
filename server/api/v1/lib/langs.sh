@@ -58,11 +58,17 @@ contest_problem_ok(){
   fi
   [[ "${_CPO[$c]}" == *" $p "* ]]
 }
+_problem_lang_overrides_json(){
+  local data=''
+  { data="$(<"$1")"; } 2>/dev/null || data='{}'
+  [[ -n "$data" ]] || data='{}'
+  printf '%s' "$data"
+}
+
 effective_problem_langs(){
   local contest="$1" pid="$2" plangs="" clangs="" pjf
   if [[ -z "${_EPL[pj:$contest]+x}" ]]; then
-    { _EPL[pj:$contest]="$(<"$CONTESTSDIR/$contest/problem-langs.json")"; } 2>/dev/null || _EPL[pj:$contest]='{}'
-    [[ -n "${_EPL[pj:$contest]}" ]] || _EPL[pj:$contest]='{}'
+    _EPL[pj:$contest]="$(_problem_lang_overrides_json "$CONTESTSDIR/$contest/problem-langs.json")"
     _EPL[cl:$contest]="$( ( LANGUAGES=""
                load_contest_conf "$contest" >/dev/null 2>&1
                [[ -n "$LANGUAGES" ]] && printf '%s\n' $LANGUAGES | grep -v '^$' | jq -R . | jq -cs . ) 2>/dev/null)"
