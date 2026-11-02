@@ -1,0 +1,33 @@
+==============================================================================
+PLANEJAMENTO DE TESTES - MÉTODO M18 (can_submit)
+Responsável: Heitor
+Repositório: cdmoj (Grupo 11 - Testes de Software 2026.2)
+==============================================================================
+
+1. DESCRIÇÃO DO MÉTODO
+----------------------
+O método `can_submit` determina se uma solicitação de submissão de código-fonte
+para avaliação pode ser aceita pelo CD-MOJ no momento da chamada.
+
+Código de Retorno (exit status):
+- 0 (sucesso) : submissão autorizada
+- 1 (falha)   : submissão recusada/bloqueada
+
+2. REGRAS DE NEGÓCIO E PERMISSÕES
+---------------------------------
+- Juiz (`is_judge=true`): permissão irrestrita de teste/submissão (inclusive em "ended").
+- Equipe de apoio (`is_staff`, `is_cstaff`, `is_animeitor`): bloqueados de submeter.
+- Usuário comum (competidor):
+  * Em "before": bloqueado (prova ainda não iniciou) -> RC=1
+  * Em "running": PERMITIDO (período oficial de submissão) -> RC=0
+  * Em "ended": bloqueado (prazo de submissão encerrado) -> RC=1
+
+3. TABELA DE CASOS DE TESTE (CT)
+--------------------------------
+ID       | Cargo / Usuário | Fase    | Retorno Esperado | Retorno Obtido | Status
+---------+-----------------+---------+------------------+----------------+-------
+CT01_M18 | Juiz            | ended   | 0 (Permitido)    | 0              | PASSED
+CT02_M18 | Staff           | running | 1 (Bloqueado)    | 1              | PASSED
+CT03_M18 | Usuário Comum   | before  | 1 (Bloqueado)    | 1              | PASSED
+CT04_M18 | Usuário Comum   | running | 0 (Permitido)    | 0              | PASSED
+CT05_M18 | Usuário Comum   | ended   | 1 (Bloqueado)    | 1              | PASSED

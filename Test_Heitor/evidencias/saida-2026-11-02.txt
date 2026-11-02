@@ -1,9 +1,7 @@
-=== Testando M17: can_see_problems ===
-✅ PASSED: CT01_M17 (Juiz vê em before)
-✅ PASSED: CT02_M17 (Staff bloqueado em running)
-✅ PASSED: CT03_M17 (Cstaff bloqueado em running)
-✅ PASSED: CT04_M17 (Animeitor bloqueado em running)
-✅ PASSED: CT05_M17 (Comum bloqueado em before)
-✅ PASSED: CT06_M17 (Comum permitido em running)
-✅ PASSED: CT07_M17 (Comum permitido em ended)
-=== Fim dos Testes M17 ===
+=== Testando M18: can_submit ===
+✅ PASSED: CT01_M18 (Juiz submete em ended)
+✅ PASSED: CT02_M18 (Staff bloqueado de submeter)
+✅ PASSED: CT03_M18 (Comum falha em before)
+✅ PASSED: CT04_M18 (Comum submete em running)
+✅ PASSED: CT05_M18 (Comum falha em ended)
+=== Fim dos Testes M18 ===
