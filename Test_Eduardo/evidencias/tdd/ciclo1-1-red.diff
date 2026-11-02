@@ -1,0 +1,65 @@
+diff --git a/Test_Eduardo/oraculo-porteiro.py b/Test_Eduardo/oraculo-porteiro.py
+index 9389499a..ba5f82c4 100755
+--- a/Test_Eduardo/oraculo-porteiro.py
++++ b/Test_Eduardo/oraculo-porteiro.py
+@@ -1,6 +1,6 @@
+ #!/usr/bin/env python3
+ """oraculo-porteiro.py — executa o ESPELHO em Python do M14 (server/porteiro/moj-porteiro.py) sobre as mesmas
+-entradas dos casos XFAIL do script bash. É o oráculo de paridade bash × porteiro citado no relatório (testes-eduardo-m14.md). Offline: importa o
++entradas dos casos X1, X2 e T1–T3 do script bash. É o oráculo de paridade bash × porteiro citado no relatório (testes-eduardo-m14.md). Offline: importa o
+ módulo (não sobe o servidor FastCGI) e usa um CONTESTSDIR temporário, apagado no fim.
+ Uso: python3 -I Test_Eduardo/oraculo-porteiro.py"""
+ import importlib.util, os, sys, tempfile
+@@ -10,6 +10,9 @@ L = "sede1-alfa"
+ CASOS = [  # (nome, CONTEST_END, time-overrides.json, função)
+     ("M14 X1 objeto", "1700000000", '{"a":{"regex":"^sede1-","end":1700000100}}', "override_end"),
+     ("M14 X2 elem. string", "1700000000", '["x",{"regex":"^sede1-","end":1700000100}]', "override_end"),
++    ("M14 T1 elem. número", "1700000000", '[5,{"regex":"^sede1-","end":1700000100}]', "override_end"),
++    ("M14 T2 elem. lista", "1700000000", '[["x"],{"regex":"^sede1-","end":1700000100}]', "override_end"),
++    ("M14 T3 regra sem []", "1700000000", '{"regex":"^sede1-","end":1700000100}', "override_end"),
+     ("M14 C17 regex 5", "1700000000", '[{"regex":5,"end":1700000900},{"regex":"^sede1-","end":1700000200}]', "override_end"),
+ ]
+ 
+diff --git a/Test_Eduardo/time-override-end.sh b/Test_Eduardo/time-override-end.sh
+index 34558bae..51d1a520 100755
+--- a/Test_Eduardo/time-override-end.sh
++++ b/Test_Eduardo/time-override-end.sh
+@@ -2,7 +2,8 @@
+ # time-override-end.sh — M14 `time_override_end` (server/api/v1/lib/contest-gate.sh): o `end` da 1ª regra de
+ # contests/<c>/time-overrides.json cujo regex casa com o login (só com o módulo `sedes` ligado). Testes de unidade
+ # derivados por caixa-preta (partições + limites) e caixa-branca (D1–D7 + MC/DC).
+-# C01..C29 entram no exit code; X1, X2 são hipóteses de defeito (XFAIL: o esperado é falharem hoje).
++# C01..C29, X1, X2 e T1..T3 entram no exit code. X1/X2 nasceram como XFAIL e viraram casos obrigatórios no
++# ciclo de TDD (Red); T1..T3 foram criados nesse ciclo.
+ # Sem rede, sem config real: MOJ_CONF inexistente e CONTESTSDIR na fixture.
+ # Uso: ./Test_Eduardo/time-override-end.sh [--trace]  (--trace grava evidencias/traces/<ID>.trace)
+ set -u
+@@ -78,6 +79,9 @@ mk c25 sedes '[{"regex":"^t1\\.","end":1700000100}]'
+ mk c28 sedes '[{"regex":"sede1","end":1700000100}]'
+ mk x01 sedes "{\"a\":$OK}"
+ mk x02 sedes "[\"x\",$OK]"
++mk t01 sedes "[5,$OK]"
++mk t02 sedes "[[\"x\"],$OK]"
++mk t03 sedes "$OK"
+ 
+ echo "== caixa-preta: arquivo (E1) =="
+ caso C C01 1700000100 0 c01 "$L"
+@@ -121,11 +125,14 @@ caso C C28 1700000100 0 c28 xsede1y
+ echo "== caixa-branca: D2 com mod_on já carregado (preload) =="
+ caso C C29 1700000100 1 c01 "$L"
+ 
+-echo "== hipótese de defeito (XFAIL): formato [{regex,end}] — arquivo objeto não é lista =="
+-caso X X1 ''          0 x01 "$L"
++echo "== TDD ciclo 1: formato [{regex,end}] — arquivo que não é lista não vale (X1, T3) =="
++caso C X1 ''          0 x01 "$L"
++caso C T3 ''          0 t03 "$L"
+ 
+-echo "== hipótese de defeito (XFAIL): elemento que não é objeto não pode silenciar as outras regras =="
+-caso X X2 1700000100  0 x02 "$L"
++echo "== TDD ciclo 1: elemento que não é objeto não pode silenciar as outras regras (X2, T1, T2) =="
++caso C X2 1700000100  0 x02 "$L"
++caso C T1 1700000100  0 t01 "$L"
++caso C T2 1700000100  0 t02 "$L"
+ 
+ (( xpass )) && echo "  ($xpass hipótese(s) XPASS: o defeito não se manifestou)"
+ echo; echo "RESULT: $pass passed, $fail failed, $xfail xfail"

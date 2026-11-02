@@ -2,7 +2,8 @@
 # time-override-end.sh — M14 `time_override_end` (server/api/v1/lib/contest-gate.sh): o `end` da 1ª regra de
 # contests/<c>/time-overrides.json cujo regex casa com o login (só com o módulo `sedes` ligado). Testes de unidade
 # derivados por caixa-preta (partições + limites) e caixa-branca (D1–D7 + MC/DC).
-# C01..C29 entram no exit code; X1, X2 são hipóteses de defeito (XFAIL: o esperado é falharem hoje).
+# C01..C29, X1, X2 e T1..T3 entram no exit code. X1/X2 nasceram como XFAIL e viraram casos obrigatórios no
+# ciclo de TDD (Red); T1..T3 foram criados nesse ciclo.
 # Sem rede, sem config real: MOJ_CONF inexistente e CONTESTSDIR na fixture.
 # Uso: ./Test_Eduardo/time-override-end.sh [--trace]  (--trace grava evidencias/traces/<ID>.trace)
 set -u
@@ -78,6 +79,9 @@ mk c25 sedes '[{"regex":"^t1\\.","end":1700000100}]'
 mk c28 sedes '[{"regex":"sede1","end":1700000100}]'
 mk x01 sedes "{\"a\":$OK}"
 mk x02 sedes "[\"x\",$OK]"
+mk t01 sedes "[5,$OK]"
+mk t02 sedes "[[\"x\"],$OK]"
+mk t03 sedes "$OK"
 
 echo "== caixa-preta: arquivo (E1) =="
 caso C C01 1700000100 0 c01 "$L"
@@ -121,11 +125,14 @@ caso C C28 1700000100 0 c28 xsede1y
 echo "== caixa-branca: D2 com mod_on já carregado (preload) =="
 caso C C29 1700000100 1 c01 "$L"
 
-echo "== hipótese de defeito (XFAIL): formato [{regex,end}] — arquivo objeto não é lista =="
-caso X X1 ''          0 x01 "$L"
+echo "== TDD ciclo 1: formato [{regex,end}] — arquivo que não é lista não vale (X1, T3) =="
+caso C X1 ''          0 x01 "$L"
+caso C T3 ''          0 t03 "$L"
 
-echo "== hipótese de defeito (XFAIL): elemento que não é objeto não pode silenciar as outras regras =="
-caso X X2 1700000100  0 x02 "$L"
+echo "== TDD ciclo 1: elemento que não é objeto não pode silenciar as outras regras (X2, T1, T2) =="
+caso C X2 1700000100  0 x02 "$L"
+caso C T1 1700000100  0 t01 "$L"
+caso C T2 1700000100  0 t02 "$L"
 
 (( xpass )) && echo "  ($xpass hipótese(s) XPASS: o defeito não se manifestou)"
 echo; echo "RESULT: $pass passed, $fail failed, $xfail xfail"

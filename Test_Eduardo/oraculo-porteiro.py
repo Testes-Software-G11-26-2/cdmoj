@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """oraculo-porteiro.py — executa o ESPELHO em Python do M14 (server/porteiro/moj-porteiro.py) sobre as mesmas
-entradas dos casos XFAIL do script bash. É o oráculo de paridade bash × porteiro citado no relatório (testes-eduardo-m14.md). Offline: importa o
+entradas dos casos X1, X2 e T1–T3 do script bash. É o oráculo de paridade bash × porteiro citado no relatório (testes-eduardo-m14.md). Offline: importa o
 módulo (não sobe o servidor FastCGI) e usa um CONTESTSDIR temporário, apagado no fim.
 Uso: python3 -I Test_Eduardo/oraculo-porteiro.py"""
 import importlib.util, os, sys, tempfile
@@ -10,6 +10,9 @@ L = "sede1-alfa"
 CASOS = [  # (nome, CONTEST_END, time-overrides.json, função)
     ("M14 X1 objeto", "1700000000", '{"a":{"regex":"^sede1-","end":1700000100}}', "override_end"),
     ("M14 X2 elem. string", "1700000000", '["x",{"regex":"^sede1-","end":1700000100}]', "override_end"),
+    ("M14 T1 elem. número", "1700000000", '[5,{"regex":"^sede1-","end":1700000100}]', "override_end"),
+    ("M14 T2 elem. lista", "1700000000", '[["x"],{"regex":"^sede1-","end":1700000100}]', "override_end"),
+    ("M14 T3 regra sem []", "1700000000", '{"regex":"^sede1-","end":1700000100}', "override_end"),
     ("M14 C17 regex 5", "1700000000", '[{"regex":5,"end":1700000900},{"regex":"^sede1-","end":1700000200}]', "override_end"),
 ]
 
