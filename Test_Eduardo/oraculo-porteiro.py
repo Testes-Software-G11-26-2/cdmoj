@@ -15,6 +15,9 @@ CASOS = [  # (nome, CONTEST_END, time-overrides.json, função)
     ("M15 X4 END=09", "09", '[{"regex":"^sede1-","end":1700000100}]', "end_effective"),
     ("M15 T1 END=000170…", "0001700000000", '[{"regex":"^sede1-","end":1699999999}]', "end_effective"),
     ("M15 T2 END=00", "00", '[]', "end_effective"),
+    ("M15 T3 1e10", "1700000000", '[{"regex":"^sede1-","end":1e10}]', "end_effective"),
+    ("M15 T4 1.70000015e9", "1700000000", '[{"regex":"^sede1-","end":1.70000015e9}]', "end_effective"),
+    ("M15 T5 1700000000.9", "1700000000", '[{"regex":"^sede1-","end":1700000000.9}]', "end_effective"),
 ]
 
 with tempfile.TemporaryDirectory() as tmp:

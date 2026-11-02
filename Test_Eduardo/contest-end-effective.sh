@@ -3,8 +3,9 @@
 # contest p/ um login = CONTEST_END do conf, PRORROGADO pela regra de time-overrides.json que casar (só estende,
 # e só quando há fim no conf). Testes de unidade derivados por caixa-preta (partições + limites) e caixa-branca
 # (D1, D2 + MC/DC de D2 = R ∧ (A ∧ B)). Integrado com o M14 real (`time_override_end`), sem stub.
-# E01..E13, X3, X4, T1 e T2 entram no exit code; X1 e X2 são hipóteses de defeito (XFAIL: o esperado é falharem hoje).
+# Todos os casos (E01..E13, X1..X4, T1..T5) entram no exit code.
 # TDD (ciclo 1): X3 e X4 eram XFAIL e foram promovidos a casos obrigatórios; T1 e T2 nasceram no Red do ciclo.
+# TDD (ciclo 2): X1 e X2 eram XFAIL e foram promovidos a casos obrigatórios; T3, T4 e T5 nasceram no Red do ciclo.
 # Sem rede, sem config real: MOJ_CONF inexistente e CONTESTSDIR na fixture.
 # Uso: ./Test_Eduardo/contest-end-effective.sh [--trace]  (--trace grava evidencias/traces/<ID>.trace)
 set -u
@@ -73,6 +74,9 @@ mk x03 'CONTEST_END=0100' sedes "$(rule 99)"
 mk x04 'CONTEST_END=09' sedes "$(rule 1700000100)"
 mk t01 'CONTEST_END=0001700000000' sedes "$(rule 1699999999)"
 mk t02 'CONTEST_END=00' sedes -
+mk t03 "$END" sedes "$(rule 1e10)"
+mk t04 "$END" sedes "$(rule 1.70000015e9)"
+mk t05 "$END" sedes "$(rule 1700000000.9)"
 
 echo "== caixa-preta: CONTEST_END do conf (F1) =="
 caso C E01 1700000000 e01 "$L"
@@ -95,15 +99,18 @@ caso C E12 1700000000 e12 "$L"
 echo "== 1ª regra que casa vence, mesmo com end negativo (bash = porteiro) =="
 caso C E13 1700000000 e13 "$L"
 
-echo "== hipóteses de defeito (XFAIL): override numérico válido que não estende =="
-caso X X1 1700000100 x01 "$L"
-caso X X2 1700000100 x02 "$L"
-
 echo "== TDD ciclo 1: CONTEST_END com zero à esquerda é DECIMAL (ex-XFAIL X3/X4 + T1/T2) =="
 caso C X3 100        x03 "$L"     # nunca encurta: 0100 = 100, override 99 não vale
 caso C X4 1700000100 x04 "$L"     # 09 = 9: sem erro de base, o override estende
 caso C T1 1700000000 t01 "$L"     # epoch real com zeros à esquerda: override menor não encurta
 caso C T2 0          t02 "$L"     # 00 = sem limite, devolvido como 0 (o porteiro devolve int 0)
+
+echo "== TDD ciclo 2: override numérico não inteiro vale TRUNCADO, como o int() do porteiro (ex-XFAIL X1/X2 + T3..T5) =="
+caso C X1 1700000100 x01 "$L"     # 1.7000001e9: o jq ecoa 1.7000001E+9
+caso C X2 1700000100 x02 "$L"     # 1700000100.5 (1ª regra vence) → 1700000100
+caso C T3 10000000000 t03 "$L"    # 1e10: expoente sem parte fracionária (o jq ecoa 1E+10)
+caso C T4 1700000150 t04 "$L"     # 1.70000015e9: sobra fração depois do expoente → trunca
+caso C T5 1700000000 t05 "$L"     # 1700000000.9: trunca (não arredonda) → não passa do fim, não estende
 
 (( xpass )) && echo "  ($xpass hipótese(s) XPASS: o defeito não se manifestou)"
 echo; echo "RESULT: $pass passed, $fail failed, $xfail xfail"

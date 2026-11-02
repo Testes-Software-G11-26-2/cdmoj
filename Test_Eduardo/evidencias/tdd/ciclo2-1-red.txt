@@ -1,0 +1,32 @@
+$ ./Test_Eduardo/contest-end-effective.sh   # TDD ciclo 2 — RED (2026-11-02, commit base d50eb4bb, produção intacta)
+== caixa-preta: CONTEST_END do conf (F1) ==
+  ok: E01 — obtido: rc0 "1700000000"
+  ok: E06 — obtido: rc0 "0"
+  ok: E08 — obtido: rc0 "0"
+  ok: E09 — obtido: rc0 "0"
+  ok: E10 — obtido: rc0 "0"
+== caixa-preta: override (F2) e limites oend × END ==
+  ok: E02 — obtido: rc0 "1700000100"
+  ok: E03 — obtido: rc0 "1700000000"
+  ok: E04 — obtido: rc0 "1700000001"
+  ok: E05 — obtido: rc0 "1700000000"
+  ok: E07 — obtido: rc0 "1700000100"
+== caixa-preta: login (F3) e módulo sedes ==
+  ok: E11 — obtido: rc0 "1700000000"
+  ok: E12 — obtido: rc0 "1700000000"
+== 1ª regra que casa vence, mesmo com end negativo (bash = porteiro) ==
+  ok: E13 — obtido: rc0 "1700000000"
+== TDD ciclo 1: CONTEST_END com zero à esquerda é DECIMAL (ex-XFAIL X3/X4 + T1/T2) ==
+  ok: X3 — obtido: rc0 "100"
+  ok: X4 — obtido: rc0 "1700000100"
+  ok: T1 — obtido: rc0 "1700000000"
+  ok: T2 — obtido: rc0 "0"
+== TDD ciclo 2: override numérico não inteiro vale TRUNCADO, como o int() do porteiro (ex-XFAIL X1/X2 + T3..T5) ==
+  FAIL: X1 — esperado: "1700000100" — obtido: rc0 "1700000000"
+  FAIL: X2 — esperado: "1700000100" — obtido: rc0 "1700000000"
+  FAIL: T3 — esperado: "10000000000" — obtido: rc0 "1700000000"
+  FAIL: T4 — esperado: "1700000150" — obtido: rc0 "1700000000"
+  ok: T5 — obtido: rc0 "1700000000"
+
+RESULT: 18 passed, 4 failed, 0 xfail
+exit=1
