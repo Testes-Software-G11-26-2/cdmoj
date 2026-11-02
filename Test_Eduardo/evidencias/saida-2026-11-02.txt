@@ -1,0 +1,46 @@
+$ ./Test_Eduardo/time-override-end.sh   # 2026-11-02, depois do TDD (commit base 11ca7b63 + ciclo 1)
+== caixa-preta: arquivo (E1) ==
+  ok: C01 — obtido: rc0 "1700000100"
+  ok: C02 — obtido: rc0 ""
+  ok: C03 — obtido: rc0 ""
+  ok: C04 — obtido: rc5 ""
+  ok: C05 — obtido: rc0 ""
+== caixa-preta: login (E2) ==
+  ok: C07 — obtido: rc0 ""
+  ok: C08 — obtido: rc0 ""
+== caixa-preta: módulo sedes (E3) ==
+  ok: C09 — obtido: rc0 ""
+  ok: C10 — obtido: rc0 ""
+  ok: C11 — obtido: rc0 ""
+  ok: C12 — obtido: rc0 "1700000100"
+== caixa-preta: regex e end da 1ª regra inválidos, uma por vez (E4, E5) ==
+  ok: C13 — obtido: rc0 ""
+  ok: C14 — obtido: rc0 "1700000200"
+  ok: C15 — obtido: rc0 "1700000200"
+  ok: C16 — obtido: rc0 "1700000200"
+  ok: C17 — obtido: rc0 "1700000200"
+  ok: C18 — obtido: rc0 "1700000200"
+  ok: C19 — obtido: rc0 "1700000200"
+  ok: C20 — obtido: rc0 "1700000200"
+== limites: end 0 x 1, posição da regra (E5, E6) ==
+  ok: C21 — obtido: rc0 "0"
+  ok: C22 — obtido: rc0 "1"
+  ok: C23 — obtido: rc0 "100"
+  ok: C24 — obtido: rc0 "300"
+== limites do casamento: ^t1\. e busca não ancorada ==
+  ok: C25 — obtido: rc0 "1700000100"
+  ok: C26 — obtido: rc0 ""
+  ok: C27 — obtido: rc0 ""
+  ok: C28 — obtido: rc0 "1700000100"
+== caixa-branca: D2 com mod_on já carregado (preload) ==
+  ok: C29 — obtido: rc0 "1700000100"
+== TDD ciclo 1: formato [{regex,end}] — arquivo que não é lista não vale (X1, T3) ==
+  ok: X1 — obtido: rc0 ""
+  ok: T3 — obtido: rc0 ""
+== TDD ciclo 1: elemento que não é objeto não pode silenciar as outras regras (X2, T1, T2) ==
+  ok: X2 — obtido: rc0 "1700000100"
+  ok: T1 — obtido: rc0 "1700000100"
+  ok: T2 — obtido: rc0 "1700000100"
+
+RESULT: 33 passed, 0 failed, 0 xfail
+exit=0

@@ -1,4 +1,4 @@
-+ run:33: time_override_end c03 sede1-alfa
-+ time_override_end:23: local f=/tmp/tmp.87chVJdUVv/contests/c03/time-overrides.json
-+ time_override_end:24: [[ -s /tmp/tmp.87chVJdUVv/contests/c03/time-overrides.json ]]
-+ time_override_end:24: return 0
++ run:34: time_override_end c03 sede1-alfa
++ time_override_end:25: local f=/tmp/tmp.odHZUoFhG8/contests/c03/time-overrides.json
++ time_override_end:26: [[ -s /tmp/tmp.odHZUoFhG8/contests/c03/time-overrides.json ]]
++ time_override_end:26: return 0

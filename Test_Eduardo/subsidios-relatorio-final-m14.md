@@ -28,30 +28,39 @@ O M14 fica em `server/api/v1/lib/contest-gate.sh`; o único chamador é o M15 (`
 - **Caixa-branca:** sete decisões (D1–D7), quatro delas **dentro do jq**. **MC/DC** com pares para A, B, D2, D3, c1, c2 e c3 (seção 4). Curto-circuito do `&&` do bash e do `and` do jq documentados.
 - **Evidência de caminho:** xtrace por caso (`--trace`) para as decisões em bash; para as do jq, o par se apoia em entrada e saída (a 1ª regra é pulada e a 2ª vence).
 - **Cobertura de linhas:** kcov (seção 5).
-- **TDD:** os defeitos ficaram registrados como XFAIL (o "vermelho"); o ciclo completo Red/Green/Refactor foi feito no M15 (branch `test/eduardo-m15`).
+- **TDD:** os defeitos ficaram registrados como XFAIL e depois foram corrigidos num ciclo completo Red/Green/Refactor nesta branch (seção 7 do relatório). O M15 tem outro ciclo, na branch `test/eduardo-m15`.
 
 ## Testes desenvolvidos
 
-- Script `time-override-end.sh`, no estilo dos testes do upstream: 30 casos — `28 passed, 0 failed, 2 xfail`.
+- Script `time-override-end.sh`, no estilo dos testes do upstream: 33 casos — `33 passed, 0 failed, 0 xfail` depois do TDD (antes: 30 casos, `28 passed, 0 failed, 2 xfail`).
 - **Defeitos encontrados** (seção 6), os dois só alcançáveis com o arquivo editado fora da API e os dois divergências com o porteiro:
   - X1: um **objeto** no lugar da lista é aceito (o `.[]?` do jq itera os valores do objeto); o porteiro ignora;
   - X2: **um único elemento que não é objeto** (`"x"`) derruba o jq e **silencia todas as regras**, inclusive as válidas. Uma sede inteira perderia a prorrogação; o porteiro pula o elemento.
-- Correção sugerida em diff (`if type=="array" … | objects`), validada numa cópia descartável: X1 e X2 passam e nenhum caso quebra. **Não aplicada.**
+- Correção sugerida em diff (`if type=="array" … | objects`), validada numa cópia descartável: X1 e X2 passam e nenhum caso quebra. **Aplicada no ciclo de TDD** (com autorização do Eduardo) e depois refatorada para `def regras: arrays | .[] | objects;`.
 
 ## Métricas de cobertura
 
 | Métrica | Valor medido | Como |
 |---|---|---|
-| Linhas com comando bash (23–26) | 4 de 4 cobertas | `cobertura.xml` do kcov |
-| Linhas que o kcov instrumentou | 7, das quais 4 cobertas | as 3 restantes (27–29) são o **texto do programa jq**, não código bash — artefato da ferramenta |
+| Linhas com comando bash (25–28, depois do TDD) | 4 de 4 cobertas | `cobertura.xml` do kcov, regerado em 2026-11-02 |
+| Linhas que o kcov instrumentou | 7, das quais 4 cobertas | as 3 restantes (29–31) são o **texto do programa jq**, não código bash — artefato da ferramenta |
 | Decisões (V e F) | D1–D7 com os dois lados exercitados | tabela da seção 4 |
 | MC/DC | 7 condições com par independente (A, B, D2, D3, c1, c2, c3) | pares da seção 4 + imagens `mcdc-*.png` |
+| Decisões criadas no TDD | D8 (`arrays`) e D9 (`objects`) com os dois lados exercitados | C01 × X1/T3 e C01 × X2/T1/T2 (entrada/saída) |
 
 Ressalva: o número cru do kcov (4 de 7) **subestima** a cobertura real e não enxerga nenhuma condição do jq. Decisão e MC/DC vêm dos pares, não da ferramenta.
 
 ## Descrição do processo de TDD
 
-No M14 o TDD ficou na primeira etapa: cada hipótese de defeito foi escrita como teste **antes** de qualquer correção e registrada falhando (XFAIL X1 e X2). A correção não foi aplicada no código de produção desta branch. O ciclo completo (Red → Green → Refactor, um commit por fase) está documentado na branch do M15.
+Ciclo completo nesta branch (seção 7 do relatório; evidências em `evidencias/tdd/`), corrigindo X1 e X2:
+
+| Fase | O que mudou | Resultado |
+|---|---|---|
+| Red | X1/X2 de XFAIL a obrigatórios; T1 (elemento número), T2 (elemento lista) e T3 (regra sem colchetes) criados | `29 passed, 4 failed, 0 xfail`, exit 1 |
+| Green | 1 linha: `(if type == "array" then .[] else empty end) \| objects` | `33 passed, 0 failed, 0 xfail` |
+| Refactor | filtro com nome `def regras: arrays \| .[] \| objects;` + comentário | `33 passed, 0 failed, 0 xfail` |
+
+Regressão sem falhas nos testes do upstream (não alterados): smoke-time-overrides 12, smoke-porteiro 54, smoke-modules-off-rules 14, smoke-contest-rounds 92, e o `jq-portability.sh` sem incompatibilidade. Ponto de destaque: o T3 passou no Red **por acidente** (o jq abortava com rc5 e a saída vazia "acertava"); ficou como caso de proteção do motivo certo. Próximo ciclo possível: a `contest_end_all`, com o mesmo `.[]?` e o mesmo defeito (sondado).
 
 ## Análise crítica (contribuição do M14)
 
@@ -77,7 +86,8 @@ No M14 o TDD ficou na primeira etapa: cada hipótese de defeito foi escrita como
 
 **Impacto do TDD no design e na manutenção.**
 - Escrever o X2 como teste antes da correção deixou claro que o problema era de **projeto** (onde fica o `try`), não de um valor: a correção sugerida mexe na forma de iterar (`objects`), não num caso particular.
-- Os XFAIL documentam o defeito de forma executável: quem aplicar a correção vê o XPASS e sabe que pode promover o caso.
+- Os XFAIL documentaram o defeito de forma executável: no TDD, promovê-los a obrigatórios foi o Red, sem mudar nenhum esperado.
+- Escrever T1–T3 antes da correção generalizou o defeito (string, número, lista) e revelou um verde falso (T3).
 
 **Lições aprendidas.**
 - Lógica embutida em outra linguagem (jq dentro de bash) precisa de estratégia de teste própria; as ferramentas de bash não a enxergam.
@@ -86,4 +96,4 @@ No M14 o TDD ficou na primeira etapa: cada hipótese de defeito foi escrita como
 
 ## Conclusão (contribuição)
 
-O M14 foi testado com 30 casos (28 obrigatórios e 2 hipóteses de defeito), com sete decisões e sete pares de MC/DC documentados e paridade com o porteiro executada. Os dois defeitos encontrados fazem o bash divergir do porteiro com um arquivo malformado; o mais grave (X2) silencia a prorrogação de uma sede inteira por causa de uma única entrada ruim. A correção está proposta e validada fora do repositório, sem ter sido aplicada.
+O M14 foi testado com 30 casos (28 obrigatórios e 2 hipóteses de defeito), com sete decisões e sete pares de MC/DC documentados e paridade com o porteiro executada. Os dois defeitos encontrados faziam o bash divergir do porteiro com um arquivo malformado; o mais grave (X2) silenciava a prorrogação de uma sede inteira por causa de uma única entrada ruim. Os dois foram corrigidos num ciclo de TDD (Red → Green → Refactor), que acrescentou três casos (T1–T3): hoje são 33 casos, todos obrigatórios e passando, sem regressão nos testes do upstream.
