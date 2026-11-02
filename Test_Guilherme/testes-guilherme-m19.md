@@ -33,30 +33,32 @@ Os aliases C++ compartilham um ramo. Cobrir esse ramo com cc nao garante cxx/hpp
 
 ## Testes implementados e resultados
 
-Script: Test_Guilherme/lang-canon.sh. 20 casos no total, incluindo TDD01. A suite regressao exclui o requisito novo; tdd executa apenas TDD01; todos executa ambos.
+Script: server/test/unit-lang-canon.sh. 20 casos no total, incluindo TDD01. A suite regressao exclui o requisito novo; tdd executa apenas TDD01; todos executa ambos.
 
-| ID | Tecnica / finalidade | Resultado apos Refactor |
-|---|---|---|
-| C01 | PE:alias-cc | PASS |
-| C02 | PE:alias-h | PASS |
-| C03 | PE:alias-py3 | PASS |
-| C04 | PE:outro-token | PASS |
-| C05 | PE:token-desconhecido | PASS |
-| C06 | AVL:zero-caracteres | PASS |
-| C07 | PE:canonico-cpp | PASS |
-| C08 | PE:espacos-preservados | PASS |
-| C09 | PE:ponto-preservado | PASS |
-| C10 | fronteira-lexical:alias-incompleto | PASS |
-| C11 | PE:nao-casar-substring | PASS |
-| C12 | AVL:um-caractere | PASS |
-| C13 | PE:formato-literal | PASS |
-| C14 | CB:alternativa-c++ | PASS |
-| C15 | CB:alternativa-cxx | PASS |
-| C16 | CB:alternativa-hpp | PASS |
-| C17 | CB:alternativa-py2 | PASS |
-| C18 | PE:caixa-mista | PASS |
-| C19 | PE:canonico-python | PASS |
-| TDD01 | TDD:argumento-ausente-retorna-2 | PASS |
+| ID | Tecnica / finalidade | Entrada / cenario | Esperado | Obtido apos Refactor |
+|---|---|---|---|---|
+| C01 | PE:alias-cc | `"cc"` | stdout=`"cpp"`; rc=0 | Igual ao esperado; PASS |
+| C02 | PE:alias-h | `"H"` | stdout=`"c"`; rc=0 | Igual ao esperado; PASS |
+| C03 | PE:alias-py3 | `"PY3"` | stdout=`"py"`; rc=0 | Igual ao esperado; PASS |
+| C04 | PE:outro-token | `"JAVA"` | stdout=`"java"`; rc=0 | Igual ao esperado; PASS |
+| C05 | PE:token-desconhecido | `"RUST1"` | stdout=`"rust1"`; rc=0 | Igual ao esperado; PASS |
+| C06 | AVL:zero-caracteres | `""` | stdout=`""`; rc=0 | Igual ao esperado; PASS |
+| C07 | PE:canonico-cpp | `"CPP"` | stdout=`"cpp"`; rc=0 | Igual ao esperado; PASS |
+| C08 | PE:espacos-preservados | `" C++ "` | stdout=`" c++ "`; rc=0 | Igual ao esperado; PASS |
+| C09 | PE:ponto-preservado | `".PY"` | stdout=`".py"`; rc=0 | Igual ao esperado; PASS |
+| C10 | fronteira-lexical:alias-incompleto | `"C+"` | stdout=`"c+"`; rc=0 | Igual ao esperado; PASS |
+| C11 | PE:nao-casar-substring | `"XCC"` | stdout=`"xcc"`; rc=0 | Igual ao esperado; PASS |
+| C12 | AVL:um-caractere | `"A"` | stdout=`"a"`; rc=0 | Igual ao esperado; PASS |
+| C13 | PE:formato-literal | `"%s\\n"` | stdout=`"%s\\n"`; rc=0 | Igual ao esperado; PASS |
+| C14 | CB:alternativa-c++ | `"c++"` | stdout=`"cpp"`; rc=0 | Igual ao esperado; PASS |
+| C15 | CB:alternativa-cxx | `"cxx"` | stdout=`"cpp"`; rc=0 | Igual ao esperado; PASS |
+| C16 | CB:alternativa-hpp | `"hpp"` | stdout=`"cpp"`; rc=0 | Igual ao esperado; PASS |
+| C17 | CB:alternativa-py2 | `"py2"` | stdout=`"py"`; rc=0 | Igual ao esperado; PASS |
+| C18 | PE:caixa-mista | `"cXx"` | stdout=`"cpp"`; rc=0 | Igual ao esperado; PASS |
+| C19 | PE:canonico-python | `"PY"` | stdout=`"py"`; rc=0 | Igual ao esperado; PASS |
+| TDD01 | TDD:argumento-ausente-retorna-2 | sem argumento | stdout=`""`; rc=2 | Igual ao esperado; PASS |
+
+Entradas e esperados transcritos do script. A coluna obtido resume as assertions aprovadas no [log existente apos Refactor](evidencias/tdd/refactor.txt); nao representa uma nova execucao. stdout e stderr sao vazios no M21; no M19, stdout e comparado byte a byte e stderr deve ser vazio.
 
 Os resultados foram executados pelo integrante no PowerShell/Git Bash e conferidos nos arquivos locais. O log foi normalizado para UTF-8/LF sem alterar seu conteudo.
 
@@ -99,8 +101,8 @@ O ciclo Red -> Green -> Refactor foi executado e registrado. O requisito novo e 
 ## Executar
 
 ```bash
-bash Test_Guilherme/lang-canon.sh --suite todos
-bash Test_Guilherme/lang-canon.sh --suite todos --trace Test_Guilherme/evidencias/execucao/traces
+bash server/test/unit-lang-canon.sh --suite todos
+bash server/test/unit-lang-canon.sh --suite todos --trace Test_Guilherme/evidencias/execucao/traces
 ```
 
 ## Uso de Inteligência Artificial

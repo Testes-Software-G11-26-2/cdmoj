@@ -13,9 +13,15 @@ Suite planejada: 19 casos do contrato existente + TDD01 = 20 casos.
 Git Bash >= 4.3, tr, cmp e mktemp. Na raiz do projeto:
 
 ```bash
-bash Test_Guilherme/lang-canon.sh --suite regressao
-bash Test_Guilherme/lang-canon.sh --suite tdd
-bash Test_Guilherme/lang-canon.sh --suite todos
+bash server/test/unit-lang-canon.sh --suite regressao
+bash server/test/unit-lang-canon.sh --suite tdd
+bash server/test/unit-lang-canon.sh --suite todos
 ```
 
 regressao verifica somente o contrato existente; tdd executa somente o novo requisito; todos executa ambos. Cada caso pode ter varias assertions, mas conta uma vez. --trace DIR guarda um arquivo por caso.
+
+## Relatorio e evidencias
+
+- [Relatorio do metodo e resultados](testes-guilherme-m19.md)
+- [Cobertura de decisoes e pares de casos](evidencias/cobertura.md)
+- [Etapas e evidencias do TDD](evidencias/tdd/README.md)

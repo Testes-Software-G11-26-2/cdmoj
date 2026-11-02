@@ -3,7 +3,7 @@
 # Requer Bash >= 4.3 (declare -gA na biblioteca), tr, mktemp e cmp.
 set -uo pipefail
 export LC_ALL=C
-ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
 LIB="$ROOT/server/api/v1/lib/langs.sh"
 suite=todos
 trace_dir=''
