@@ -1,0 +1,20 @@
+=== CICLO TDD 1: Fase Preliminar ('before') ===
+--- 1. Executando teste antes da implementação (Fase RED) ---
+  [RED]   ❌ FAILED: now < start (antes da implementação) | Esperado: 'before', Obtido: ''
+--- 2. Implementação mínima da regra (Fase GREEN) ---
+  [GREEN] ✅ PASSED: now < start (após implementação mínima)
+
+=== CICLO TDD 2: Prova em Andamento ('running') ===
+--- 1. Executando teste para now == start (Fase RED) ---
+  [RED]   ❌ FAILED: now == start (esperava running, c1 falha) | Esperado: 'running', Obtido: ''
+--- 2. Extensão da regra para running (Fase GREEN) ---
+  [GREEN] ✅ PASSED: now == start (após implementar running)
+
+=== CICLO TDD 3: Encerramento com e sem Prazo ('ended') ===
+--- 1. Executando teste para now == end (Fase RED) ---
+  [RED]   ❌ FAILED: now == end (esperava ended, c2 retorna running) | Esperado: 'ended', Obtido: 'running'
+--- 2. Implementação completa e refatoração (Fase GREEN / REFACTOR) ---
+  [GREEN] ✅ PASSED: now == end (implementação final)
+  [GREEN] ✅ PASSED: Sem prazo de fim (end == 0)
+
+>>> Ciclos TDD concluídos com sucesso para M16!

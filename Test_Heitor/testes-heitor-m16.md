@@ -32,7 +32,17 @@ O método `contest_phase` avalia o estado temporal de uma maratona de programaç
 
 ---
 
-## 3. Estratégia de Teste (PCE e AVL)
+## 3. Metodologia de Desenvolvimento Orientado a Testes (TDD)
+
+O desenvolvimento deste método seguiu o ciclo **Red-Green-Refactor**:
+- **Red:** Elaboração antecipada dos testes unitários para cada requisito de fase (`before`, `running`, `ended`), observando as falhas iniciais;
+- **Green:** Implementação do código estritamente necessário para aprovação dos testes de transição temporal;
+- **Refactor:** Limpeza do fluxo de condicionais e padronização POSIX.
+*(Para o detalhamento passo a passo dos 3 ciclos, consulte o arquivo `tdd-m16.md`).*
+
+---
+
+## 4. Estratégia de Teste (PCE e AVL)
 
 Foram aplicadas as técnicas de **Particionamento em Classes de Equivalência (PCE)** e **Análise de Valor Limite (AVL)**:
 

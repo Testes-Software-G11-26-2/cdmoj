@@ -22,5 +22,12 @@ O método `contest_phase` do módulo de controle temporal do servidor CD-MOJ foi
 +------------+-------------------------------+-------------------+-----------------+----------+
 ```
 
+### Aplicação do Ciclo TDD (Red -> Green -> Refactor)
+O desenvolvimento do método seguiu 3 ciclos iterativos de TDD:
+1. **Ciclo 1 (Fase preliminar 'before'):** Teste inicial falhou (RED) por ausência de função; implementou-se verificação de `now < start` (GREEN);
+2. **Ciclo 2 (Fase ativa 'running'):** Teste com `now == start` falhou (RED); implementou-se o retorno default "running" (GREEN);
+3. **Ciclo 3 (Encerramento 'ended'):** Teste de limite `now == end` falhou (RED); implementou-se a validação de prazo `end > 0 && now >= end` (GREEN).
+Código final refatorado e validado (REFACTOR).
+
 ### Análise de Conformidade
 Todos os 5 casos de teste executaram com 100% de sucesso, demonstrando que o algoritmo de julgamento temporal atende aos requisitos sem ocorrência de bugs nas transições de estados de contagem de tempo.
