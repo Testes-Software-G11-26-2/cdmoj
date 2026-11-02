@@ -31,7 +31,17 @@ O método `can_submit` valida se o usuário possui autorização para enviar có
 
 ---
 
-## 3. Matriz de Casos de Teste e Validação
+## 3. Metodologia de Desenvolvimento Orientado a Testes (TDD)
+
+O método seguiu a prática de **TDD**:
+- **Red:** Testes elaborados para validar bloqueio e permissão de submissão antes da escrita do código de controle;
+- **Green:** Construção da lógica mínima de checagem de papel e janela de contest ativo (`running`);
+- **Refactor:** Eliminação de redundâncias e garantia de tratamento de estados extemporâneos.
+*(Para o detalhamento passo a passo dos 3 ciclos, consulte o arquivo `tdd-m18.md`).*
+
+---
+
+## 4. Matriz de Casos de Teste e Validação
 
 | ID Caso de Teste | Papel do Usuário | Fase do Contest | Retorno Esperado (RC) | Retorno Obtido | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |

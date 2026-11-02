@@ -1,0 +1,20 @@
+=== CICLO TDD 1: Submissão de Juiz em Prova Encerrada ===
+--- 1. Submissão de juiz sem implementação (Fase RED) ---
+  [RED]   ❌ FAILED: Juiz em ended (função stub) | Esperado RC: 0, Obtido RC: 1
+--- 2. Implementação mínima de permissão do Juiz (Fase GREEN) ---
+  [GREEN] ✅ PASSED: Juiz em ended (com C1)
+
+=== CICLO TDD 2: Bloqueio de Staff/Apoio ===
+--- 1. Staff tentando submeter (Fase RED se padrão fosse 0) ---
+  [GREEN] ✅ PASSED: Staff bloqueado (verificação prévia)
+--- 2. Bloqueio explícito dos papéis de apoio (Fase GREEN) ---
+  [GREEN] ✅ PASSED: Staff bloqueado com C2
+
+=== CICLO TDD 3: Submissão Exclusiva em Running para Competidores ===
+--- 1. Competidor comum tentando submeter em running (Fase RED) ---
+  [RED]   ❌ FAILED: Competidor em running (C2 bloqueava todos) | Esperado RC: 0, Obtido RC: 1
+--- 2. Liberação exclusiva para 'running' (Fase GREEN / REFACTOR) ---
+  [GREEN] ✅ PASSED: Competidor liberado em running
+  [GREEN] ✅ PASSED: Competidor bloqueado em ended
+
+>>> Ciclos TDD concluídos com sucesso para M18!
