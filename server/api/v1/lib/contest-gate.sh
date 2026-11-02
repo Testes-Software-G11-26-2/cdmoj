@@ -24,7 +24,7 @@ time_override_end() {
   [[ -s "$f" && -n "${2:-}" ]] || return 0
   _tov_on "$1" || return 0
   jq -r --arg l "$2" '
-    first(.[]? | (.regex // "") as $rr | (.end) as $e
+    first((if type == "array" then .[] else empty end) | objects | (.regex // "") as $rr | (.end) as $e
           | select($rr != "" and ($e|type=="number") and (try ($l | test($rr)) catch false))
           | $e) // empty' "$f" 2>/dev/null
 }
