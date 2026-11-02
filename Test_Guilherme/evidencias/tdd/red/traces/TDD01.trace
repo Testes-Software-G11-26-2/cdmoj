@@ -1,0 +1,20 @@
++ Test_Guilherme/lang-allowed.sh:42:scenario: lang_allowed '[ ]' py
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m21/server/api/v1/lib/langs.sh:84:lang_allowed: local 'langs=[ ]' ext=py c
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m21/server/api/v1/lib/langs.sh:86:lang_allowed: [[ -z [ ] ]]
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m21/server/api/v1/lib/langs.sh:86:lang_allowed: [[ [ ] == \[\] ]]
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m21/server/api/v1/lib/langs.sh:86:lang_allowed: [[ [ ] == null ]]
+++ /c/Users/negre/repos/moj/cdmoj-guilherme-m21/server/api/v1/lib/langs.sh:87:lang_allowed: _lang_canon py
+++ Test_Guilherme/lang-allowed.sh:33:_lang_canon: printf %s py
+++ Test_Guilherme/lang-allowed.sh:33:_lang_canon: printf '.\n'
+++ Test_Guilherme/lang-allowed.sh:33:_lang_canon: printf %s py
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m21/server/api/v1/lib/langs.sh:87:lang_allowed: c=py
++ /c/Users/negre/repos/moj/cdmoj-guilherme-m21/server/api/v1/lib/langs.sh:88:lang_allowed: jq -e --arg c py 'map( ascii_downcase
+      | (if .=="c++" or .=="cc" or .=="cxx" or .=="hpp" then "cpp"
+         elif .=="h" then "c"
+         elif .=="py3" or .=="py2" then "py" else . end) )
+    | (index($c) != null)'
++ Test_Guilherme/lang-allowed.sh:43:scenario: rc=1
++ Test_Guilherme/lang-allowed.sh:44:scenario: printf %s 1
++ Test_Guilherme/lang-allowed.sh:46:scenario: case "$verdict" in
++ Test_Guilherme/lang-allowed.sh:46:scenario: [[ 1 -eq 0 ]]
++ Test_Guilherme/lang-allowed.sh:46:scenario: return 1

@@ -1,0 +1,4 @@
+M21 | lang_allowed | suite=tdd
+  expected=allow actual_rc=1
+FAIL TDD01 [TDD:array-vazio-semantico-usa-piso] scenario_rc=1
+RESULT: 0 passed, 1 failed, 1 selected (suite=tdd)
