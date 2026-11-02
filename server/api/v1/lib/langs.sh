@@ -61,7 +61,7 @@ contest_problem_ok(){
 effective_problem_langs(){
   local contest="$1" pid="$2" plangs="" clangs="" pjf
   if [[ -z "${_EPL[pj:$contest]+x}" ]]; then
-    _EPL[pj:$contest]="$(<"$CONTESTSDIR/$contest/problem-langs.json")" 2>/dev/null || _EPL[pj:$contest]='{}'
+    { _EPL[pj:$contest]="$(<"$CONTESTSDIR/$contest/problem-langs.json")"; } 2>/dev/null || _EPL[pj:$contest]='{}'
     [[ -n "${_EPL[pj:$contest]}" ]] || _EPL[pj:$contest]='{}'
     _EPL[cl:$contest]="$( ( LANGUAGES=""
                load_contest_conf "$contest" >/dev/null 2>&1

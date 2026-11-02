@@ -1,0 +1,13 @@
+diff --git a/server/api/v1/lib/langs.sh b/server/api/v1/lib/langs.sh
+index 8d80424b..08fda49e 100644
+--- a/server/api/v1/lib/langs.sh
++++ b/server/api/v1/lib/langs.sh
+@@ -61,7 +61,7 @@ contest_problem_ok(){
+ effective_problem_langs(){
+   local contest="$1" pid="$2" plangs="" clangs="" pjf
+   if [[ -z "${_EPL[pj:$contest]+x}" ]]; then
+-    _EPL[pj:$contest]="$(<"$CONTESTSDIR/$contest/problem-langs.json")" 2>/dev/null || _EPL[pj:$contest]='{}'
++    { _EPL[pj:$contest]="$(<"$CONTESTSDIR/$contest/problem-langs.json")"; } 2>/dev/null || _EPL[pj:$contest]='{}'
+     [[ -n "${_EPL[pj:$contest]}" ]] || _EPL[pj:$contest]='{}'
+     _EPL[cl:$contest]="$( ( LANGUAGES=""
+                load_contest_conf "$contest" >/dev/null 2>&1
