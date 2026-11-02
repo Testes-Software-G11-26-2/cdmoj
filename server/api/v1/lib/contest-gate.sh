@@ -35,7 +35,7 @@ time_override_end() {
 contest_end_effective() {
   local CONTEST_START=0 CONTEST_END=0 oend
   source "$CONTESTSDIR/$1/conf" 2>/dev/null
-  [[ "$CONTEST_END" =~ ^[0-9]+$ ]] || CONTEST_END=0
+  [[ "$CONTEST_END" =~ ^[0-9]+$ ]] && CONTEST_END=$((10#$CONTEST_END)) || CONTEST_END=0
   oend="$(time_override_end "$1" "${2:-}")"
   [[ "$oend" =~ ^[0-9]+$ ]] && (( CONTEST_END > 0 && oend > CONTEST_END )) && CONTEST_END=$oend
   printf '%s' "$CONTEST_END"

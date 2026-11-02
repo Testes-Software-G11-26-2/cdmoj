@@ -1,0 +1,19 @@
+$ bash server/test/smoke-time-overrides.sh   # regressão (teste do upstream, não alterado) — GREEN
+== submit após o fim global ==
+  ok: sede1 (prorrogada) submete
+  ok: sede2 recebe 403 contest_ended
+== countdown personalizado (/contest/basic) ==
+  ok: sede1 vê o fim prorrogado
+  ok: sede2 vê o fim global
+  ok: sem token vê o fim global
+== admin GET/POST /contest/admin/time-overrides ==
+  ok: GET lista a regra
+  ok: POST substitui as regras
+  ok: sede2 agora submete
+  ok: sede1 perdeu a prorrogação (403)
+  ok: regra inválida some na limpeza ou 422
+  ok: não-admin 403
+  ok: auditoria registra
+
+RESULT: 12 passed, 0 failed
+exit=0
