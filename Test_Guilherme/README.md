@@ -25,3 +25,11 @@ regressao verifica somente o contrato existente; tdd executa somente o novo requ
 Execute os comandos de captura em planejamento-m20.md. Salve a imagem em evidencias/img/m20-red.png. Mantenha comando, resultado final e exit code visiveis. Nenhuma imagem sera criada automaticamente.
 
 Somente apos confirmar a falha pelo motivo esperado sera implementado Green minimo. Depois, Refactor real e nova regressao com os mesmos testes. O relatorio final sera escrito apos as execucoes.
+
+## Resultados e cobertura
+
+- [Relatorio do metodo](testes-guilherme-m20.md)
+- [Cobertura observada e MC/DC](evidencias/cobertura.md)
+- [Etapas TDD e evidencias](evidencias/tdd/README.md)
+
+Os 24 casos passaram apos o Refactor. Nao ha kcov ou imagens geradas automaticamente.
