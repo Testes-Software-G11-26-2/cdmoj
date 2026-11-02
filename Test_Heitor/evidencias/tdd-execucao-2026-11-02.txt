@@ -1,0 +1,20 @@
+=== CICLO TDD 1: Acesso de Juiz ===
+--- 1. Testando Juiz sem implementação (Fase RED) ---
+  [RED]   ❌ FAILED: Juiz em before (função vazia/stub) | Esperado RC: 0, Obtido RC: 1
+--- 2. Implementação mínima para Juiz (Fase GREEN) ---
+  [GREEN] ✅ PASSED: Juiz em before (com permissão de juiz)
+
+=== CICLO TDD 2: Bloqueio de Staff/Apoio ===
+--- 1. Testando Staff com implementação C1 (Fase RED) ---
+  [RED]   ❌ FAILED: Staff bloqueado em running (C1 não trata staff) | Esperado RC: 1, Obtido RC: 0
+--- 2. Implementação de filtro de staff (Fase GREEN) ---
+  [GREEN] ✅ PASSED: Staff bloqueado em running (após C2)
+
+=== CICLO TDD 3: Restrição de Fase para Competidores Comuns ===
+--- 1. Competidor em fase 'before' com C2 (Fase RED) ---
+  [RED]   ❌ FAILED: Comum em before (C2 libera indevidamente) | Esperado RC: 1, Obtido RC: 0
+--- 2. Implementação final com checagem de fase (Fase GREEN / REFACTOR) ---
+  [GREEN] ✅ PASSED: Comum bloqueado em before (após C3)
+  [GREEN] ✅ PASSED: Comum liberado em running
+
+>>> Ciclos TDD concluídos com sucesso para M17!

@@ -31,7 +31,17 @@ O método `can_see_problems` aplica as regras de controle de acesso aos enunciad
 
 ---
 
-## 3. Matriz de Casos de Teste e Cobertura Lógica
+## 3. Metodologia de Desenvolvimento Orientado a Testes (TDD)
+
+O método foi projetado sob o ciclo **Red-Green-Refactor**:
+- **Red:** Testes escritos previamente para cada perfil de acesso (`is_judge`, papéis operacionais e usuário comum), observando a recusa ou falha da asserção;
+- **Green:** Implementação progressiva das checagens de autorização até obtenção de status 100% verde;
+- **Refactor:** Otimização lógica das expressões booleanas para máxima performance em scripts shell.
+*(Para o detalhamento passo a passo dos 3 ciclos, consulte o arquivo `tdd-m17.md`).*
+
+---
+
+## 4. Matriz de Casos de Teste e Cobertura Lógica
 
 | ID Caso de Teste | Papel do Usuário | Fase do Contest | Retorno Esperado (RC) | Retorno Obtido | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
