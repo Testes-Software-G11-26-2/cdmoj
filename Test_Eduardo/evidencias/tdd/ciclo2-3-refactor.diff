@@ -1,0 +1,34 @@
+diff --git a/server/api/v1/lib/contest-gate.sh b/server/api/v1/lib/contest-gate.sh
+index ee42f056..47027b43 100644
+--- a/server/api/v1/lib/contest-gate.sh
++++ b/server/api/v1/lib/contest-gate.sh
+@@ -18,14 +18,17 @@
+ # de $l — ver a armadilha de contexto de args do jq); try/catch protege de regex inválido.
+ # A prorrogação por sede é do módulo `sedes`: DESLIGADO, o arquivo não vale (decisão do Ribas, 03/10/2026). O teste
+ # do módulo vem DEPOIS do do arquivo (custo zero p/ quem não tem prorrogação).
+-# `regras` = só os OBJETOS de uma LISTA, como o espelho do porteiro (override_end): arquivo que não é lista
+-# não vale, e elemento que não é objeto é pulado em vez de abortar o jq e silenciar as regras válidas.
++# `regras` = só os OBJETOS de uma LISTA, como o espelho do porteiro (override_end/end_all): arquivo que não é lista
++# não vale, e elemento que não é objeto é pulado em vez de abortar o jq e silenciar as regras válidas. FONTE ÚNICA
++# do formato p/ os dois leitores do arquivo (time_override_end e contest_end_all): o programa jq de cada um começa
++# por "$TOV_RULES_JQ".
++TOV_RULES_JQ='def regras: arrays | .[] | objects; '
+ _tov_on(){ declare -F mod_on >/dev/null || source "${_LIBDIR:-${BASH_SOURCE[0]%/*}}/modules.sh"; mod_on "$1" sedes; }
+ time_override_end() {
+   local f="$CONTESTSDIR/$1/time-overrides.json"
+   [[ -s "$f" && -n "${2:-}" ]] || return 0
+   _tov_on "$1" || return 0
+-  jq -r --arg l "$2" 'def regras: arrays | .[] | objects;
++  jq -r --arg l "$2" "$TOV_RULES_JQ"'
+     first(regras | (.regex // "") as $rr | (.end) as $e
+           | select($rr != "" and ($e|type=="number") and (try ($l | test($rr)) catch false))
+           | $e) // empty' "$f" 2>/dev/null
+@@ -54,7 +57,7 @@ contest_end_all() {
+   source "$CONTESTSDIR/$1/conf" 2>/dev/null
+   [[ "$CONTEST_END" =~ ^[0-9]+$ ]] || CONTEST_END=0
+   if [[ -s "$f" ]] && (( CONTEST_END > 0 )) && _tov_on "$1"; then
+-    mx="$(jq -r '[.[]? | select((.regex//"") != "" and (.end|type=="number")) | .end] | max // empty' "$f" 2>/dev/null)"
++    mx="$(jq -r "$TOV_RULES_JQ"'[regras | select((.regex//"") != "" and (.end|type=="number")) | .end] | max // empty' "$f" 2>/dev/null)"
+     [[ "$mx" =~ ^[0-9]+$ ]] && (( mx > CONTEST_END )) && CONTEST_END=$mx
+   fi
+   printf '%s' "$CONTEST_END"
