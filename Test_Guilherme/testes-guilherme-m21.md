@@ -110,3 +110,20 @@ O ciclo Red -> Green -> Refactor foi executado e registrado. O requisito novo e 
 bash Test_Guilherme/lang-allowed.sh --suite todos
 bash Test_Guilherme/lang-allowed.sh --suite todos --trace Test_Guilherme/evidencias/execucao/traces
 ```
+
+## Uso de Inteligência Artificial
+
+**Ferramenta de apoio:** ChatGPT.
+
+**Finalidades de apoio:**
+
+- Esclarecer dúvidas conceituais sobre técnicas de teste de software, como particionamento de equivalência, análise de valor-limite, cobertura de testes e MC/DC.
+- Consultar explicações gerais sobre mensagens de erro de compilação, execução ou configuração do ambiente de desenvolvimento.
+- Revisar a clareza e a correção gramatical do relatório técnico, sem gerar ou reescrever sua análise crítica e suas conclusões.
+
+**Exemplos de prompts:**
+
+1. “Como o MC/DC demonstra a independência de cada condição em uma decisão composta por três termos ligados por OR?”
+2. “Qual é a diferença entre cobertura de linhas, cobertura de decisões e cobertura MC/DC?”
+3. “Como interpretar, de forma geral, uma mensagem de erro de parsing apresentada pelo jq?”
+4. “Revise apenas a clareza e a correção gramatical deste trecho sobre permissão de linguagens, preservando o conteúdo técnico, a análise crítica e as conclusões.”
