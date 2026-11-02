@@ -54,7 +54,7 @@ contest_end_all() {
   source "$CONTESTSDIR/$1/conf" 2>/dev/null
   [[ "$CONTEST_END" =~ ^[0-9]+$ ]] || CONTEST_END=0
   if [[ -s "$f" ]] && (( CONTEST_END > 0 )) && _tov_on "$1"; then
-    mx="$(jq -r '[.[]? | select((.regex//"") != "" and (.end|type=="number")) | .end] | max // empty' "$f" 2>/dev/null)"
+    mx="$(jq -r '[arrays | .[] | objects | select((.regex//"") != "" and (.end|type=="number")) | .end] | max // empty' "$f" 2>/dev/null)"
     [[ "$mx" =~ ^[0-9]+$ ]] && (( mx > CONTEST_END )) && CONTEST_END=$mx
   fi
   printf '%s' "$CONTEST_END"

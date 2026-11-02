@@ -1,0 +1,13 @@
+diff --git a/server/api/v1/lib/contest-gate.sh b/server/api/v1/lib/contest-gate.sh
+index ee42f056..82f4207d 100644
+--- a/server/api/v1/lib/contest-gate.sh
++++ b/server/api/v1/lib/contest-gate.sh
+@@ -54,7 +54,7 @@ contest_end_all() {
+   source "$CONTESTSDIR/$1/conf" 2>/dev/null
+   [[ "$CONTEST_END" =~ ^[0-9]+$ ]] || CONTEST_END=0
+   if [[ -s "$f" ]] && (( CONTEST_END > 0 )) && _tov_on "$1"; then
+-    mx="$(jq -r '[.[]? | select((.regex//"") != "" and (.end|type=="number")) | .end] | max // empty' "$f" 2>/dev/null)"
++    mx="$(jq -r '[arrays | .[] | objects | select((.regex//"") != "" and (.end|type=="number")) | .end] | max // empty' "$f" 2>/dev/null)"
+     [[ "$mx" =~ ^[0-9]+$ ]] && (( mx > CONTEST_END )) && CONTEST_END=$mx
+   fi
+   printf '%s' "$CONTEST_END"
