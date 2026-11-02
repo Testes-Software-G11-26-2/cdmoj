@@ -9,7 +9,7 @@
 | Commit | Análise: `ec13d5cc` (`master`). TDD (seção 7): feito sobre `46cd4d75`, a ponta da branch com os testes |
 | Branch | `test/eduardo-m15` |
 | Ferramentas | GNU bash 5.3.20(1)-release · jq-1.8.2 · Python 3.14.8 (oráculo do porteiro) · kcov 43 · ImageMagick 7.1.2-34 · Arch Linux, kernel 6.18.57-2-lts |
-| Data | 2026-11-01 (testes e TDD) |
+| Data | 2026-11-01 (testes e TDD) · 2026-11-02 (saída, traces, imagens e kcov gerados de novo sobre o código depois do TDD) |
 | Script | `Test_Eduardo/contest-end-effective.sh`: teste de unidade, offline, com fixture em `mktemp -d` |
 
 Para reproduzir, rode na raiz do `cdmoj`:
@@ -77,8 +77,8 @@ Esta seção descreve o código **analisado** (`ec13d5cc`). Depois do Refactor d
 
 | Decisão | Linha | Expressão |
 |---|---|---|
-| **D1** | 38 | `[[ "$CONTEST_END" =~ ^[0-9]+$ ]] \|\| CONTEST_END=0` |
-| **D2** | 40 | `R && (( A && B )) && CONTEST_END=$oend`. R = `[[ "$oend" =~ ^[0-9]+$ ]]`, A = `CONTEST_END > 0`, B = `oend > CONTEST_END` |
+| **D1** | 38 (hoje: 36, no `if` do `epoch_dec_to`, chamado na 45) | `[[ "$CONTEST_END" =~ ^[0-9]+$ ]] \|\| CONTEST_END=0` |
+| **D2** | 40 (hoje: 47) | `R && (( A && B )) && CONTEST_END=$oend`. R = `[[ "$oend" =~ ^[0-9]+$ ]]`, A = `CONTEST_END > 0`, B = `oend > CONTEST_END` |
 
 Não há decisão dentro de jq no M15 (as do jq são do M14). O `source … 2>/dev/null` da linha 37 com conf ausente cai nos `local` (E10).
 
@@ -125,13 +125,13 @@ flowchart TD
 
 "–" = não avaliado (curto-circuito). Par de D1: E01 (V) × E09 (F, `abc` vira `0`).
 
-O xtrace mostra o R numa linha própria (`contest_end_effective:40: [[ 1700000100 =~ ^[0-9]+$ ]]`), mas o `(( CONTEST_END > 0 && oend > CONTEST_END ))` aparece **inteiro** numa linha só. O par de A e o de B são vistos pela linha seguinte: aparece `CONTEST_END=…` (D2=V) ou ela não aparece (D2=F). A separação entre A e B vem dos dados (E06 tem `END=0`; E03 tem `oend == END`), não do trace.
+Os traces em `evidencias/traces/` foram gerados sobre o código atual (depois do TDD), então neles a D2 aparece na linha 47 e a D1 nas linhas `epoch_dec_to:36`. O xtrace mostra o R numa linha própria (`contest_end_effective:47: [[ 1700000100 =~ ^[0-9]+$ ]]`), mas o `(( CONTEST_END > 0 && oend > CONTEST_END ))` aparece **inteiro** numa linha só. O par de A e o de B são vistos pela linha seguinte: aparece `CONTEST_END=…` (D2=V) ou ela não aparece (D2=F). A separação entre A e B vem dos dados (E06 tem `END=0`; E03 tem `oend == END`), não do trace.
 
 ## 5. Resultados
 
-Execução de 2026-11-01, **antes do TDD** (`evidencias/saida-2026-11-01.txt`, com `--trace`): **`RESULT: 13 passed, 0 failed, 4 xfail`**, exit 0. A execução sem `--trace` e a execução sob kcov deram o mesmo resultado.
+Execução atual, de 2026-11-02, **depois do TDD** (`evidencias/saida-2026-11-02.txt`, com `--trace`): **`RESULT: 17 passed, 0 failed, 2 xfail`**, exit 0. A execução sem `--trace` e a execução sob kcov deram o mesmo resultado. É a mesma do fim do Refactor (`evidencias/tdd/ciclo1-3-refactor.txt`).
 
-Execução **depois do TDD** (`evidencias/tdd/ciclo1-3-refactor.txt`): **`RESULT: 17 passed, 0 failed, 2 xfail`**, exit 0. X3 e X4 viraram casos obrigatórios e passam, e T1/T2 foram criados no ciclo. Na tabela abaixo, a coluna "Obtido" de X3, X4, T1 e T2 mostra o antes e o depois.
+Execução de 2026-11-01, **antes do TDD** (`evidencias/saida-2026-11-01.txt`, mantida como histórico): **`RESULT: 13 passed, 0 failed, 4 xfail`**, exit 0. X3 e X4 viraram casos obrigatórios e passam, e T1/T2 foram criados no ciclo. Na tabela abaixo, a coluna "Obtido" de X3, X4, T1 e T2 mostra o antes e o depois.
 
 | ID | Entrada (conf · override · login) | Esperado | Obtido | Status | Critério |
 |---|---|---|---|---|---|
@@ -155,9 +155,9 @@ Execução **depois do TDD** (`evidencias/tdd/ciclo1-3-refactor.txt`): **`RESULT
 | T1 | END=0001700000000 · rule(1699999999) · L | `1700000000` | Red: rc0 `1699999999` · depois: rc0 `1700000000` | FAIL → ok (TDD) | nunca encurta; epoch real |
 | T2 | END=00 · sem arquivo · L | `0` | Red: rc0 `00` · depois: rc0 `0` | FAIL → ok (TDD) | `0` = sem limite (porteiro: `int`) |
 
-![Execução completa antes do TDD — 13 passed, 0 failed, 4 xfail](evidencias/img/execucao-completa.png)
+![Execução completa depois do TDD — 17 passed, 0 failed, 2 xfail](evidencias/img/execucao-completa.png)
 
-A execução completa depois do TDD está na seção 7 (imagem do Refactor).
+A execução antes do TDD (13 passed, 4 xfail) está na imagem do Red e em `evidencias/saida-2026-11-01.txt`; as imagens de X3 e X4 na seção 6 também são de antes do TDD.
 
 ### Traces dos pares MC/DC
 
@@ -171,18 +171,23 @@ A execução completa depois do TDD está na seção 7 (imagem do Refactor).
 
 ### Cobertura de linhas (kcov)
 
-Comando: `kcov --include-path="$PWD/server/api/v1/lib/contest-gate.sh" Test_Eduardo/evidencias/cobertura ./Test_Eduardo/contest-end-effective.sh`. O kcov roda **o script** (executável, com shebang), e não `bash <script>`. O relatório fica em `evidencias/cobertura/contest-end-effective.sh.b4f6d613e03ef3f5/` (`cobertura.xml`, `coverage.json`, `index.html`). O symlink que o kcov cria na raiz da pasta (caminho absoluto da máquina) foi apagado.
+Comando: `kcov --include-path="$PWD/server/api/v1/lib/contest-gate.sh" Test_Eduardo/evidencias/cobertura ./Test_Eduardo/contest-end-effective.sh`. O kcov roda **o script** (executável, com shebang), e não `bash <script>`. O relatório fica em `evidencias/cobertura/contest-end-effective.sh.b4f6d613e03ef3f5/` (`cobertura.xml`, `coverage.json`, `index.html`); abra `evidencias/cobertura/index.html` no navegador. Ele foi gerado em 2026-11-02 sobre o código **depois do TDD**. O symlink que o kcov cria na raiz da pasta (caminho absoluto da máquina) foi apagado.
 
 | Linha | Hits | Observação |
 |---|---|---|
-| 35 (`contest_end_effective() {`) | não instrumentada | definição de função |
-| 36, 37, 38, 39, 40, 41 | 17, 17, 18, 34, 31, 17 | todas cobertas: **6 de 6** linhas instrumentadas do M15 |
+| 34 (`epoch_dec_to() {`), 37 (`}`) | não instrumentadas | definição de função |
+| 35, 36 (`epoch_dec_to`) | 19, 38 | cobertas; a 36 tem o `if/else` da D1 (V em 18 casos, F em E09) |
+| 42 (`contest_end_effective() {`), 49 (`}`) | não instrumentadas | definição de função |
+| 43, 44, 45, 46, 47, 48 | 19, 19, 19, 38, 34, 19 | cobertas |
+| **Total** | | **8 de 8** linhas instrumentadas do M15 e do helper cobertas |
 
-As linhas do M14 (23–29) também aparecem nesse relatório, porque o M15 o chama. Elas são avaliadas no relatório do M14. O kcov mede **linha**, não decisão nem MC/DC: as três condições de D2 estão na linha 40, que ele marca como coberta com qualquer caso.
+Antes do TDD (kcov de 2026-11-01, sobre o código analisado) o resultado foi 6 de 6 linhas cobertas (36–41).
 
-![Renderização via ImageMagick dos dados do cobertura.xml do kcov (linhas 35–41); não é captura de tela.](evidencias/img/cobertura-kcov.png)
+As linhas do M14 (23–29) também aparecem nesse relatório, porque o M15 o chama. Elas são avaliadas no relatório do M14. O kcov mede **linha**, não decisão nem MC/DC: as três condições de D2 estão na linha 47, que ele marca como coberta com qualquer caso.
 
-*Renderização via ImageMagick dos dados do `cobertura.xml` do kcov (linhas 35–41); não é captura de tela.*
+![Renderização via ImageMagick dos dados do cobertura.xml do kcov (linhas 34–49, depois do TDD); não é captura de tela.](evidencias/img/cobertura-kcov.png)
+
+*Renderização via ImageMagick dos dados do `cobertura.xml` do kcov (linhas 34–49, depois do TDD); não é captura de tela.*
 
 ## 6. Defeitos e hipóteses (XFAIL)
 
@@ -353,7 +358,7 @@ Regressão: os testes do upstream que exercitam essa lib foram rodados **sem alt
 - **`CONTEST_START` não é usado** pela função (o `local` só o isola do chamador). O `source` do conf poderia redefinir outras variáveis do chamador. O teste não cobre esse vazamento, porque a função roda em subshell nos chamadores (`$(…)`).
 - **Integração com o M14.** O M15 foi testado com o M14 real. As partições do M14 (arquivo, módulo, regex) não foram repetidas aqui: E12 cobre só o módulo desligado.
 - **Caminhos temporários nos traces.** Os traces trazem caminhos do `mktemp` (`/tmp/tmp.XXXX`), que mudam a cada execução.
-- **Cobertura.** O kcov mede só linha. Não há medida automática de decisão nem de MC/DC. O relatório do kcov (seção 5) e os traces em `evidencias/traces/` são do código **antes** do TDD. Depois do Refactor eles não foram regerados.
+- **Cobertura.** O kcov mede só linha. Não há medida automática de decisão nem de MC/DC. O relatório do kcov, os traces e as imagens de execução, MC/DC e X1/X2 foram gerados de novo em 2026-11-02 sobre o código depois do TDD. As linhas citadas nas seções 4 e 6 são as do código analisado (`ec13d5cc`); a seção 4 traz a correspondência com as linhas atuais. Ficam de antes do TDD, de propósito: `evidencias/saida-2026-11-01.txt`, as imagens de X3/X4 e as evidências do Red em `evidencias/tdd/`.
 - **`contest_end_all` continua com o defeito do octal.** Sondagem real depois do Refactor: `CONTEST_END=0100` com override `99` → `contest_end_effective` = `100` e `contest_end_all` = `99`. Ela não é método deste trabalho, e corrigi-la muda comportamento (não é refatoração), então ficou como próximo ciclo (seção 7).
 - **Regressão limitada.** Rodei 4 smokes do upstream ligados à função, não a suíte inteira do `server/test/`.
 

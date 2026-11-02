@@ -43,11 +43,12 @@ O M15 fica em `server/api/v1/lib/contest-gate.sh` e é chamado pelo `contest_pha
 
 | Métrica | Valor medido | Como |
 |---|---|---|
-| Linhas do M15 (kcov, antes do TDD) | 6 de 6 linhas instrumentadas cobertas (36–41) | `cobertura.xml` do kcov |
+| Linhas do M15 + helper `epoch_dec_to` (kcov, depois do TDD) | 8 de 8 linhas instrumentadas cobertas (35–36, 43–48) | `cobertura.xml` do kcov |
+| Linhas do M15 (kcov, antes do TDD) | 6 de 6 linhas instrumentadas cobertas (36–41) | medição de 2026-11-01 |
 | Decisões (V e F) | D1 e D2 com os dois lados exercitados | tabela da seção 4, conferida nos traces |
 | MC/DC de D2 | 3 de 3 condições com par independente | pares da seção 4 + imagens `mcdc-*.png` |
 
-Ressalvas: o kcov mede só **linha** — a linha da D2 conta como coberta com qualquer caso, então decisão e MC/DC vêm dos traces e dos pares, não da ferramenta. O kcov não foi regerado depois do TDD (lacuna registrada).
+Ressalvas: o kcov mede só **linha** — a linha da D2 conta como coberta com qualquer caso, então decisão e MC/DC vêm dos traces e dos pares, não da ferramenta. O kcov foi gerado de novo depois do TDD (2026-11-02).
 
 ## Descrição do processo de TDD
 

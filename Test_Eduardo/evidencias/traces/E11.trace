@@ -1,16 +1,19 @@
-+ run:35: contest_end_effective e02
-+ contest_end_effective:36: local CONTEST_START=0 CONTEST_END=0 oend
-+ contest_end_effective:37: source /tmp/tmp.nxjlCxecUk/contests/e02/conf
++ run:36: contest_end_effective e02
++ contest_end_effective:43: local CONTEST_START=0 CONTEST_END=0 oend
++ contest_end_effective:44: source /tmp/tmp.zfgL2Eq3r6/contests/e02/conf
 ++ source:1: CONTEST_ID=e02
 ++ source:2: CONTEST_START=1690000000
 ++ source:3: CONTEST_END=1700000000
 ++ source:4: CONTEST_MODULES=sedes
-+ contest_end_effective:38: [[ 1700000000 =~ ^[0-9]+$ ]]
-++ contest_end_effective:39: time_override_end e02 ''
-++ time_override_end:23: local f=/tmp/tmp.nxjlCxecUk/contests/e02/time-overrides.json
-++ time_override_end:24: [[ -s /tmp/tmp.nxjlCxecUk/contests/e02/time-overrides.json ]]
++ contest_end_effective:45: epoch_dec_to CONTEST_END
++ epoch_dec_to:35: local -n __ed_ref=CONTEST_END
++ epoch_dec_to:36: [[ 1700000000 =~ ^[0-9]+$ ]]
++ epoch_dec_to:36: __ed_ref=1700000000
+++ contest_end_effective:46: time_override_end e02 ''
+++ time_override_end:23: local f=/tmp/tmp.zfgL2Eq3r6/contests/e02/time-overrides.json
+++ time_override_end:24: [[ -s /tmp/tmp.zfgL2Eq3r6/contests/e02/time-overrides.json ]]
 ++ time_override_end:24: [[ -n '' ]]
 ++ time_override_end:24: return 0
-+ contest_end_effective:39: oend=
-+ contest_end_effective:40: [[ '' =~ ^[0-9]+$ ]]
-+ contest_end_effective:41: printf %s 1700000000
++ contest_end_effective:46: oend=
++ contest_end_effective:47: [[ '' =~ ^[0-9]+$ ]]
++ contest_end_effective:48: printf %s 1700000000
