@@ -1,0 +1,5 @@
+M19 | _lang_canon | suite=tdd
+FAIL TDD01 [TDD:argumento-ausente-retorna-2] expected_rc=2 actual_rc=0
+  expected='' actual=''
+  stderr: /c/Users/negre/repos/moj/cdmoj-guilherme-m19/server/api/v1/lib/langs.sh: line 13: $1: unbound variable
+RESULT: 0 passed, 1 failed, 1 selected (suite=tdd)
