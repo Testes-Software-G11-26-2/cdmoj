@@ -35,36 +35,38 @@ Os pares estruturais do piso nao cobrem, sozinhos, a normalizacao dos itens da w
 
 ## Testes implementados e resultados
 
-Script: Test_Guilherme/lang-allowed.sh. 26 casos no total, incluindo TDD01. A suite regressao exclui o requisito novo; tdd executa apenas TDD01; todos executa ambos.
+Script: server/test/unit-lang-allowed.sh. 26 casos no total, incluindo TDD01. A suite regressao exclui o requisito novo; tdd executa apenas TDD01; todos executa ambos.
 
-| ID | Tecnica / finalidade | Resultado apos Refactor |
-|---|---|---|
-| C01 | MCDC:piso-base | PASS |
-| C02 | MCDC:piso-vazio | PASS |
-| C03 | MCDC:piso-array-vazio | PASS |
-| C04 | MCDC:piso-null | PASS |
-| C05 | PE:lista-explicita-nega | PASS |
-| C06 | PE:piso-autoriza | PASS |
-| C07 | PE:piso-nega-binario | PASS |
-| C08 | PE:exotica-explicita | PASS |
-| C09 | MCDC:cpp-base | PASS |
-| C10 | MCDC:cpp-c++ | PASS |
-| C11 | MCDC:cpp-cc | PASS |
-| C12 | MCDC:cpp-cxx | PASS |
-| C13 | MCDC:cpp-hpp | PASS |
-| C14 | CB:alias-h | PASS |
-| C15 | MCDC:python-py3 | PASS |
-| C16 | MCDC:python-py2 | PASS |
-| C17 | MCDC:python-base | PASS |
-| C18 | PE:caixa-na-whitelist | PASS |
-| C19 | contrato:extensao-canonizada | PASS |
-| C20 | AVL:primeiro-elemento | PASS |
-| C21 | AVL:ultimo-elemento | PASS |
-| C22 | PE:nao-casar-substring | PASS |
-| C23 | PE:json-malformado | PASS |
-| C24 | PE:tipo-invalido | PASS |
-| C25 | PE:espaco-literal-preservado | PASS |
-| TDD01 | TDD:array-vazio-semantico-usa-piso | PASS |
+| ID | Tecnica / finalidade | Entrada / cenario | Esperado | Obtido apos Refactor |
+|---|---|---|---|---|
+| C01 | MCDC:piso-base | lista=`["py"]`; extensao=`"py"`; canonizador=`"py"`; piso=`["cpp"]` | permite (rc=0); 0 chamada(s) ao piso | Igual ao esperado; PASS |
+| C02 | MCDC:piso-vazio | lista=``; extensao=`"py"`; canonizador=`"py"`; piso=`["cpp"]` | nega (rc diferente de 0); 1 chamada(s) ao piso | Igual ao esperado; PASS |
+| C03 | MCDC:piso-array-vazio | lista=`[]`; extensao=`"py"`; canonizador=`"py"`; piso=`["cpp"]` | nega (rc diferente de 0); 1 chamada(s) ao piso | Igual ao esperado; PASS |
+| C04 | MCDC:piso-null | lista=`null`; extensao=`"py"`; canonizador=`"py"`; piso=`["cpp"]` | nega (rc diferente de 0); 1 chamada(s) ao piso | Igual ao esperado; PASS |
+| C05 | PE:lista-explicita-nega | lista=`["cpp"]`; extensao=`"py"`; canonizador=`"py"`; piso=`["cpp"]` | nega (rc diferente de 0); 0 chamada(s) ao piso | Igual ao esperado; PASS |
+| C06 | PE:piso-autoriza | lista=`[]`; extensao=`"cpp"`; canonizador=`"cpp"`; piso=`["cpp","py"]` | permite (rc=0); 1 chamada(s) ao piso | Igual ao esperado; PASS |
+| C07 | PE:piso-nega-binario | lista=`[]`; extensao=`"exe"`; canonizador=`"exe"`; piso=`["cpp","py"]` | nega (rc diferente de 0); 1 chamada(s) ao piso | Igual ao esperado; PASS |
+| C08 | PE:exotica-explicita | lista=`["brainfuck"]`; extensao=`"brainfuck"`; canonizador=`"brainfuck"`; piso=`["cpp"]` | permite (rc=0); 0 chamada(s) ao piso | Igual ao esperado; PASS |
+| C09 | MCDC:cpp-base | lista=`["zzz"]`; extensao=`"cpp"`; canonizador=`"cpp"`; piso=`["cpp"]` | nega (rc diferente de 0); 0 chamada(s) ao piso | Igual ao esperado; PASS |
+| C10 | MCDC:cpp-c++ | lista=`["c++"]`; extensao=`"cpp"`; canonizador=`"cpp"`; piso=`["cpp"]` | permite (rc=0); 0 chamada(s) ao piso | Igual ao esperado; PASS |
+| C11 | MCDC:cpp-cc | lista=`["cc"]`; extensao=`"cpp"`; canonizador=`"cpp"`; piso=`["cpp"]` | permite (rc=0); 0 chamada(s) ao piso | Igual ao esperado; PASS |
+| C12 | MCDC:cpp-cxx | lista=`["cxx"]`; extensao=`"cpp"`; canonizador=`"cpp"`; piso=`["cpp"]` | permite (rc=0); 0 chamada(s) ao piso | Igual ao esperado; PASS |
+| C13 | MCDC:cpp-hpp | lista=`["hpp"]`; extensao=`"cpp"`; canonizador=`"cpp"`; piso=`["cpp"]` | permite (rc=0); 0 chamada(s) ao piso | Igual ao esperado; PASS |
+| C14 | CB:alias-h | lista=`["h"]`; extensao=`"c"`; canonizador=`"c"`; piso=`["cpp"]` | permite (rc=0); 0 chamada(s) ao piso | Igual ao esperado; PASS |
+| C15 | MCDC:python-py3 | lista=`["py3"]`; extensao=`"py"`; canonizador=`"py"`; piso=`["cpp"]` | permite (rc=0); 0 chamada(s) ao piso | Igual ao esperado; PASS |
+| C16 | MCDC:python-py2 | lista=`["py2"]`; extensao=`"py"`; canonizador=`"py"`; piso=`["cpp"]` | permite (rc=0); 0 chamada(s) ao piso | Igual ao esperado; PASS |
+| C17 | MCDC:python-base | lista=`["zzz"]`; extensao=`"py"`; canonizador=`"py"`; piso=`["cpp"]` | nega (rc diferente de 0); 0 chamada(s) ao piso | Igual ao esperado; PASS |
+| C18 | PE:caixa-na-whitelist | lista=`["JAVA"]`; extensao=`"java"`; canonizador=`"java"`; piso=`["cpp"]` | permite (rc=0); 0 chamada(s) ao piso | Igual ao esperado; PASS |
+| C19 | contrato:extensao-canonizada | lista=`["cpp"]`; extensao=`"CC"`; canonizador=`"cpp"`; piso=`["cpp"]` | permite (rc=0); 0 chamada(s) ao piso | Igual ao esperado; PASS |
+| C20 | AVL:primeiro-elemento | lista=`["py","cpp","java"]`; extensao=`"py"`; canonizador=`"py"`; piso=`["cpp"]` | permite (rc=0); 0 chamada(s) ao piso | Igual ao esperado; PASS |
+| C21 | AVL:ultimo-elemento | lista=`["java","cpp","py"]`; extensao=`"py"`; canonizador=`"py"`; piso=`["cpp"]` | permite (rc=0); 0 chamada(s) ao piso | Igual ao esperado; PASS |
+| C22 | PE:nao-casar-substring | lista=`["python"]`; extensao=`"py"`; canonizador=`"py"`; piso=`["cpp"]` | nega (rc diferente de 0); 0 chamada(s) ao piso | Igual ao esperado; PASS |
+| C23 | PE:json-malformado | lista=`[`; extensao=`"py"`; canonizador=`"py"`; piso=`["cpp"]` | nega (rc diferente de 0); 0 chamada(s) ao piso | Igual ao esperado; PASS |
+| C24 | PE:tipo-invalido | lista=`[null,"py"]`; extensao=`"py"`; canonizador=`"py"`; piso=`["cpp"]` | nega (rc diferente de 0); 0 chamada(s) ao piso | Igual ao esperado; PASS |
+| C25 | PE:espaco-literal-preservado | lista=`[" "]`; extensao=`" "`; canonizador=`" "`; piso=`["cpp"]` | permite (rc=0); 0 chamada(s) ao piso | Igual ao esperado; PASS |
+| TDD01 | TDD:array-vazio-semantico-usa-piso | lista=`[ ]`; extensao=`"py"`; canonizador=`"py"`; piso=`["py"]` | permite (rc=0); 1 chamada(s) ao piso | Igual ao esperado; PASS |
+
+Entradas e esperados transcritos do script. A coluna obtido resume as assertions aprovadas no [log existente apos Refactor](evidencias/tdd/refactor.txt); nao representa uma nova execucao. stdout e stderr sao vazios no M21; no M19, stdout e comparado byte a byte e stderr deve ser vazio.
 
 Os resultados foram executados pelo integrante no PowerShell/Git Bash e conferidos nos arquivos locais. O log foi normalizado para UTF-8/LF sem alterar seu conteudo.
 
@@ -107,8 +109,8 @@ O ciclo Red -> Green -> Refactor foi executado e registrado. O requisito novo e 
 ## Executar
 
 ```bash
-bash Test_Guilherme/lang-allowed.sh --suite todos
-bash Test_Guilherme/lang-allowed.sh --suite todos --trace Test_Guilherme/evidencias/execucao/traces
+bash server/test/unit-lang-allowed.sh --suite todos
+bash server/test/unit-lang-allowed.sh --suite todos --trace Test_Guilherme/evidencias/execucao/traces
 ```
 
 ## Uso de Inteligência Artificial
