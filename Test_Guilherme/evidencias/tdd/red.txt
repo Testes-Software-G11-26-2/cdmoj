@@ -1,0 +1,5 @@
+M20 | effective_problem_langs | suite=tdd
+FAIL TDD01 [TDD:override-ausente-silencioso] scenario_rc=1
+  actual=["py"]
+/c/Users/negre/repos/moj/cdmoj-guilherme-m20/server/api/v1/lib/langs.sh: line 64: /tmp/tmp.s4zLjf0T7V/TDD01/contests/c/problem-langs.json: No such file or directory
+RESULT: 0 passed, 1 failed, 1 selected (suite=tdd)
