@@ -1,0 +1,29 @@
+$ ./Test_Eduardo/contest-end-effective.sh   # TDD ciclo 1 — REFACTOR (2026-11-01): helper epoch_dec_to
+== caixa-preta: CONTEST_END do conf (F1) ==
+  ok: E01 — obtido: rc0 "1700000000"
+  ok: E06 — obtido: rc0 "0"
+  ok: E08 — obtido: rc0 "0"
+  ok: E09 — obtido: rc0 "0"
+  ok: E10 — obtido: rc0 "0"
+== caixa-preta: override (F2) e limites oend × END ==
+  ok: E02 — obtido: rc0 "1700000100"
+  ok: E03 — obtido: rc0 "1700000000"
+  ok: E04 — obtido: rc0 "1700000001"
+  ok: E05 — obtido: rc0 "1700000000"
+  ok: E07 — obtido: rc0 "1700000100"
+== caixa-preta: login (F3) e módulo sedes ==
+  ok: E11 — obtido: rc0 "1700000000"
+  ok: E12 — obtido: rc0 "1700000000"
+== 1ª regra que casa vence, mesmo com end negativo (bash = porteiro) ==
+  ok: E13 — obtido: rc0 "1700000000"
+== hipóteses de defeito (XFAIL): override numérico válido que não estende ==
+  XFAIL: X1 — esperado: "1700000100" — obtido: rc0 "1700000000"
+  XFAIL: X2 — esperado: "1700000100" — obtido: rc0 "1700000000"
+== TDD ciclo 1: CONTEST_END com zero à esquerda é DECIMAL (ex-XFAIL X3/X4 + T1/T2) ==
+  ok: X3 — obtido: rc0 "100"
+  ok: X4 — obtido: rc0 "1700000100"
+  ok: T1 — obtido: rc0 "1700000000"
+  ok: T2 — obtido: rc0 "0"
+
+RESULT: 17 passed, 0 failed, 2 xfail
+exit=0

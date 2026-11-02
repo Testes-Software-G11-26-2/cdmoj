@@ -1,0 +1,210 @@
+$ bash server/test/smoke-time-overrides.sh   # regressão (teste do upstream, não alterado) — REFACTOR
+== submit após o fim global ==
+  ok: sede1 (prorrogada) submete
+  ok: sede2 recebe 403 contest_ended
+== countdown personalizado (/contest/basic) ==
+  ok: sede1 vê o fim prorrogado
+  ok: sede2 vê o fim global
+  ok: sem token vê o fim global
+== admin GET/POST /contest/admin/time-overrides ==
+  ok: GET lista a regra
+  ok: POST substitui as regras
+  ok: sede2 agora submete
+  ok: sede1 perdeu a prorrogação (403)
+  ok: regra inválida some na limpeza ou 422
+  ok: não-admin 403
+  ok: auditoria registra
+
+RESULT: 12 passed, 0 failed
+
+$ bash server/test/smoke-porteiro.sh   # regressão (teste do upstream, não alterado) — REFACTOR
+== serve com variante certa
+  ok: rounds pub p/ time
+  ok: rounds priv p/ admin
+  ok: nav do papel admin
+  ok: nav do papel time
+== placar
+  ok: anônimo: congelado + header 1
+  ok: admin: full + header 0
+  ok: SCORE_FULL_USERS: o 1º de dois logins recebe o full
+  ok: SCORE_FULL_USERS: o 2º também
+server/test/smoke-porteiro.sh: line 106: warning: command substitution: ignored null byte in input
+  ok: gz servido com Accept-Encoding
+== declina tudo fora do feliz
+  ok: token inexistente
+  ok: secreto sem sessão
+  ok: POST
+  ok: traversal
+  ok: scope=mine
+  ok: cache frio (basic sem cache)
+  ok: IP preso pela trava de sede
+  ok: IP livre segue servido
+  ok: time pelo site principal/IP (sem CONTEST_HOST)
+  ok: papel pelo site principal segue servido
+  ok: override 0 em run/team-host-lock: time servido
+  ok: id que não vira subdomínio (a.b) fica isento
+  ok: papel de conta só da fonte
+  ok: cache ausente
+  ok: cache mais velho que o conf
+== updates COMPUTADO (news + clars com visibilidade)
+  ok: news agregado
+  ok: clar do time (própria+pública, respondidas)
+  ok: admin vê todas as respondidas
+  ok: clar com JSON inválido
+== staff/queue COMPUTADA (escopo, ordenação, gate do reconcile)
+  ok: admin vê tudo + envelope
+  ok: ordenação pending(seq)→delivered
+  ok: admin: staff-filters.json NÃO vira linha fantasma (espelho do PICK do bash)
+  ok: escopo sem scope-cache fresco
+  ok: escopo recorta (vê eq1, não vê outro)
+== staff/queue: o memo POR WORKER relê só o que mudou — TODA consulta vê a mudança (2 workers: 4 consultas)
+  ok: memo quente: t1 pending nas 4
+  ok: tmp+mv (inode novo): as 4 consultas veem printed
+  ok: gravação no lugar, mesmo tamanho: as 4 veem a mudança
+  ok: tarefa nova aparece nas 4
+  ok: tarefa apagada some das 4
+  ok: tarefa corrompida declina mesmo com o memo quente
+  ok: consertada, volta a servir
+  ok: reconcile devido (dirty > stamp fora do piso)
+== submission/summary: '{}' constante sob log oculto (o poll mais quente da prova)
+  ok: time + icpc sem SHOWLOG ⇒ {}
+  ok: juiz no summary
+  ok: summary sem ids
+  ok: SHOWLOG=1 ⇒ resumo real é do bash
+== módulo desligado desliga a regra (03/10/2026): coortes e prorrogação por sede, igual ao bash
+  ok: coortes ligado: o convidado recebe o placar da coorte
+  ok: sedes ligado: a variante do basic leva o fim prorrogado
+  ok: coortes desligado: o convidado recebe o placar PÚBLICO
+  ok: sedes desligado: a variante do basic volta ao fim do conf
+== placar ANÔNIMO (SCORE_ANON=1): fora da organização só o agregado, igual ao bash (03/10/2026)
+  ok: anônimo: o time (mesmo na SCORE_FULL_USERS) recebe só o agregado
+  ok: anônimo: sem sessão, agregado
+  ok: anônimo: .mon (organização) recebe o TXT
+  ok: anônimo: agregado mais velho que o placar declina (o bash refaz)
+== placar velho fora do piso declina
+  ok: score sujo além do piso
+
+RESULT: 54 passed, 0 failed
+
+$ bash server/test/smoke-modules-off-rules.sh   # regressão (teste do upstream, não alterado) — REFACTOR
+== módulos LIGADOS: a regra vale ==
+  ok: maquinas: navegador fora da imagem → 403 ua_gate
+  ok: maquinas: com a imagem entra e PRENDE o IP (trava)
+  ok: inscricoes: não inscrito → 403
+  ok: sedes: o fim do teama1 é o prorrogado
+  ok: coortes: a coorte privada fica fora do placar público
+  ok: baloes: AC vira tarefa de balão
+== DESLIGADOS pelo painel: a regra NÃO vale (nada apagado) ==
+  ok: desligar maquinas SOLTA os IPs presos por este contest
+  ok: os arquivos continuam no disco
+  ok: maquinas off: qualquer navegador entra, e o IP não é preso
+  ok: inscricoes off: não inscrito entra
+  ok: sedes off: o fim do teama1 volta ao do conf
+  ok: coortes off: a coorte privada volta ao placar público
+  ok: baloes off: AC novo NÃO vira tarefa
+  ok: religar baloes: a varredura completa cria o que faltou
+
+RESULT: 14 passed, 0 failed
+
+$ bash server/test/smoke-contest-rounds.sh   # regressão (teste do upstream, não alterado) — REFACTOR
+== rodada planejada: problemas seguem a permissão do DONO do contest ==
+  ok: add planejada
+  ok: público entra
+  ok: privado do dono entra
+  ok: privado com dono colaborador entra
+  ok: privado da ORG do dono entra (id com / também)
+  ok: privado alheio: 404 problem_denied (existência não vaza)
+  ok: e NÃO lista o id negado
+  ok: rodada planejada ficou com os 2 (org + dono)
+  ok: promoção bloqueada por problem_denied
+  ok: bloqueador traz detail_en + detail_es (sem PT)
+  ok: force NÃO passa por cima do problem_denied
+  ok: e nada foi materializado do privado alheio
+  ok: letra repetida (outra caixa) na rodada: 422 letter_dup
+  ok: promoção bloqueada por letter_dup, trilíngue
+  ok: force NÃO passa por cima do letter_dup
+== rodada ATIVA: mesma regra, e vai pro conf ==
+  ok: ativa é a implícita 'oficial'
+  ok: org entra na ativa
+  ok: PROBS do conf tem os dois
+  ok: alheio na ativa: 404
+  ok: conf intacto
+  ok: contest sem owner: privado 404
+  ok: contest sem owner: público ok
+== cores de balão POR RODADA ==
+  ok: hex inválido 422
+  ok: chave inválida 422
+  ok: array 422
+  ok: set colors na planejada
+  ok: planejada NÃO mexe no balloons.json
+  ok: {} não mexe
+  ok: GET devolve as cores da planejada
+  ok: ativa sem cores próprias (sem balloons.json)
+  ok: /contest/balloons ainda padrão
+  ok: set colors na ATIVA grava o balloons.json
+  ok: módulo baloes ligou
+  ok: /contest/balloons vê a cor nova (cache derrubado)
+  ok: ativa espelha o balloons.json
+  ok: Evento › Balões e a rodada ativa são a MESMA coisa
+  ok: null remove as cores da planejada
+  ok: juiz-chefe lê (readOnly)
+  ok: juiz-chefe não escreve (403)
+== promoção: rodada COM cores troca o balloons.json; SEM cores herda ==
+  ok: promoveu
+  ok: promoção dispara o aquecimento (destacado, auditado by=promote:<login>)
+  ok: PDF ENVIADO (config à mão) volta após a promoção; o gerado fica só no arquivo
+  ok: caderno ENVIADO do aquecimento NÃO volta (fica no arquivo); o logo volta
+  ok: balloons.json = cores da rodada que entrou
+  ok: arquivo da rodada que saiu guardou as cores dela
+  ok: /contest/balloons serve a cor nova
+  ok: prova oficial encerrada no ar: bloqueador official_over, trilíngue
+  ok: rodada sem problemas: bloqueador round_no_problems (aviso, o force passa)
+  ok: …sem 'ignorar', a promoção é recusada (409 not_ready)
+  ok: …e os bloqueadores vêm DENTRO do error (a tela lê ApiError.data)
+  ok: promoveu p/ a extra
+  ok: contest de LISTA: a promoção NÃO aquece sozinha (fica com o botão)
+  ok: …a atividade da prova foi p/ o arquivo
+  ok: sem cores próprias: herdou
+  ok: ativa (extra) espelha as herdadas
+  ok: arquivada 'prova' mantém as cores no plano (auditoria)
+== DESFAZER a última promoção (TCP 2026) ==
+  ok: GET: dá p/ desfazer prova → extra
+  ok: sem confirmar o id do contest: 422
+  ok: juiz-chefe não desfaz (403)
+  ok: desfez: prova de volta, extra planejada
+  ok: history e clarification da prova de volta ao vivo
+  ok: conf de volta na rodada da prova
+  ok: rounds.json: prova ativa, extra planejada (não sumiu)
+  ok: a sobra do arquivo saiu de rounds/prova (fica em rounds/.desfeitas/)
+  ok: desfazer vai ao audit
+  ok: nada mais a desfazer além do aquecimento (o oficial ainda arquivado)
+  ok: dá p/ promover de novo (o arquivo de antes não trava)
+  ok: com atividade na rodada nova: não dá p/ desfazer (round_has_activity, trilíngue)
+  ok: …e o POST é recusado (409 undo_blocked)
+== export/create round-trip leva colors ==
+  ok: export tem colors da planejada
+  ok: create a partir do export
+  ok: rounds.json da cópia tem colors
+== guarda do freeze: descongelar só a partir do fim geral + 1 min ==
+  ok: fim há 30 s: settings freeze:0 -> 409 freeze_locked
+  ok: conf segue congelado
+  ok: mudar o freeze p/ outro >0 passa
+  ok: config basic.freeze:0 -> 409
+  ok: rounds set freeze:0 na ativa -> 409 freeze_locked
+  ok: settings freeze:"00" -> 409 (comparação numérica)
+  ok: freeze em vigor empurrado p/ o futuro -> 409
+  ok: FREEZE_TIME intacto
+  ok: Encerrar evento -> 409 freeze_locked
+  ok: checklist: can_finish false + freeze_release_at = fim+60
+  ok: settings expõe freeze_release_at
+  ok: promoção bloqueada por freeze_locked
+  ok: freeze_locked trilíngue (detail_en + detail_es, sem PT)
+  ok: force NÃO passa por cima
+  ok: prorrogação empurra o mínimo (fim da sede + 60)
+  ok: com sede prorrogada: 409
+  ok: fim há 2 h: descongela
+  ok: sem freeze em vigor: 0 de novo passa (idempotente)
+  ok: promoção liberada (freeze ok)
+  ok: Encerrar evento passa
+RESULT: 92 passed, 0 failed
+

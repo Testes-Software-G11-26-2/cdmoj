@@ -29,13 +29,20 @@ time_override_end() {
           | $e) // empty' "$f" 2>/dev/null
 }
 
+# epoch_dec_to <var> : normaliza a variável (nameref, zero fork) p/ inteiro DECIMAL — "0100" vale 100,
+# nunca o octal 64 que o (( )) leria — ou 0 se ela não for só dígitos. Mesma leitura do porteiro (conf_int).
+epoch_dec_to() {
+  local -n __ed_ref="$1"
+  if [[ "$__ed_ref" =~ ^[0-9]+$ ]]; then __ed_ref=$((10#$__ed_ref)); else __ed_ref=0; fi
+}
+
 # contest_end_effective <contest> <login> -> fim EFETIVO (epoch; 0 = sem limite):
 # CONTEST_END do conf, PRORROGADO pela regra do time-overrides.json que casar (o override
 # só ESTENDE — nunca encurta — e só vale quando há um fim definido no conf).
 contest_end_effective() {
   local CONTEST_START=0 CONTEST_END=0 oend
   source "$CONTESTSDIR/$1/conf" 2>/dev/null
-  [[ "$CONTEST_END" =~ ^[0-9]+$ ]] && CONTEST_END=$((10#$CONTEST_END)) || CONTEST_END=0
+  epoch_dec_to CONTEST_END
   oend="$(time_override_end "$1" "${2:-}")"
   [[ "$oend" =~ ^[0-9]+$ ]] && (( CONTEST_END > 0 && oend > CONTEST_END )) && CONTEST_END=$oend
   printf '%s' "$CONTEST_END"
