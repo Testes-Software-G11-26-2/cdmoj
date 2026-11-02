@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """oraculo-porteiro.py — executa o ESPELHO em Python do M15 (server/porteiro/moj-porteiro.py) sobre as mesmas
-entradas dos casos XFAIL do script bash. É o oráculo de paridade bash × porteiro citado no README. Offline: importa o
+entradas dos casos XFAIL (e dos casos do ciclo TDD) do script bash. É o oráculo de paridade bash × porteiro citado no relatório (testes-eduardo-m15.md). Offline: importa o
 módulo (não sobe o servidor FastCGI) e usa um CONTESTSDIR temporário, apagado no fim.
 Uso: python3 -I Test_Eduardo/oraculo-porteiro.py"""
 import importlib.util, os, sys, tempfile
@@ -13,6 +13,8 @@ CASOS = [  # (nome, CONTEST_END, time-overrides.json, função)
     ("M15 X2 float", "1700000000", '[{"regex":"^sede1-","end":1700000100.5},{"regex":"^sede1-","end":1700000200}]', "end_effective"),
     ("M15 X3 END=0100", "0100", '[{"regex":"^sede1-","end":99}]', "end_effective"),
     ("M15 X4 END=09", "09", '[{"regex":"^sede1-","end":1700000100}]', "end_effective"),
+    ("M15 T1 END=000170…", "0001700000000", '[{"regex":"^sede1-","end":1699999999}]', "end_effective"),
+    ("M15 T2 END=00", "00", '[]', "end_effective"),
 ]
 
 with tempfile.TemporaryDirectory() as tmp:
