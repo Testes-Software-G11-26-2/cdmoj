@@ -81,9 +81,10 @@ effective_problem_langs(){
 # lang_allowed <langs-json-array> <ext-ou-FILETYPE> -> 0 se permitido ([]/vazio = todas).
 # Compara CANÔNICO dos dois lados: x.py3 passa em ["py"]; ids exóticos comparam literal.
 lang_allowed(){
-  local langs="$1" ext="$2" c
+  local langs="$1" ext="$2" c empty_check
   # lista vazia = o CHÃO da plataforma (nunca "qualquer extensão" — ver PLATFORM_LANGS acima)
-  [[ -z "$langs" || "$langs" == '[]' || "$langs" == null ]] && langs="$(platform_langs_json)"
+  empty_check="${langs//[$' \t\r\n']/}"
+  [[ -z "$langs" || "$empty_check" == '[]' || "$langs" == null ]] && langs="$(platform_langs_json)"
   c="$(_lang_canon "$ext")"
   jq -e --arg c "$c" 'map( ascii_downcase
       | (if .=="c++" or .=="cc" or .=="cxx" or .=="hpp" then "cpp"

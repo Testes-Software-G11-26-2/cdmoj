@@ -1,0 +1,17 @@
+diff --git a/server/api/v1/lib/langs.sh b/server/api/v1/lib/langs.sh
+index 8d80424b..4495f586 100644
+--- a/server/api/v1/lib/langs.sh
++++ b/server/api/v1/lib/langs.sh
+@@ -81,9 +81,10 @@ effective_problem_langs(){
+ # lang_allowed <langs-json-array> <ext-ou-FILETYPE> -> 0 se permitido ([]/vazio = todas).
+ # Compara CAN├öNICO dos dois lados: x.py3 passa em ["py"]; ids ex├│ticos comparam literal.
+ lang_allowed(){
+-  local langs="$1" ext="$2" c
++  local langs="$1" ext="$2" c empty_check
+   # lista vazia = o CH├âO da plataforma (nunca "qualquer extens├úo" ΓÇö ver PLATFORM_LANGS acima)
+-  [[ -z "$langs" || "$langs" == '[]' || "$langs" == null ]] && langs="$(platform_langs_json)"
++  empty_check="${langs//[$' \t\r\n']/}"
++  [[ -z "$langs" || "$empty_check" == '[]' || "$langs" == null ]] && langs="$(platform_langs_json)"
+   c="$(_lang_canon "$ext")"
+   jq -e --arg c "$c" 'map( ascii_downcase
+       | (if .=="c++" or .=="cc" or .=="cxx" or .=="hpp" then "cpp"
